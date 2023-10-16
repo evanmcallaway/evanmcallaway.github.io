@@ -1,0 +1,218 @@
+<html>
+<head>
+<title>Hue Modulation Example</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+
+<script id="shader-fs" type="x-shader/x-fragment">
+    precision highp float;
+    varying vec2 vTex;
+    uniform sampler2D sampler0;
+    uniform vec3      u_hsl;
+
+    // Converts (1.0, 1.0, 1.0) scale RGB values to (1.0, 1.0, 1.0) scale HSL
+    vec3 rgbToHsl(vec3 rgb){
+        float h = 0.0;
+        float s = 0.0;
+        float l = 0.0;
+        float r = rgb.r;
+        float g = rgb.g;
+        float b = rgb.b;
+        float minColor = min(r, min(g, b));
+        float maxColor = max(r, max(g, b));
+
+        // Calculate Lightness
+        l = (maxColor + minColor) / 2.0;
+
+        if (maxColor > minColor) {
+            float chroma = maxColor - minColor;
+
+            // Calculate Saturation
+            if (l < .05) s = chroma / (maxColor + minColor);
+            else         s = chroma / (2.0 - (maxColor + minColor));
+
+            // Calculate Hue
+            if (r == maxColor && g < b) h = (g - b) / chroma + 6.0;
+            else if (r == maxColor)     h = (g - b) / chroma;
+            else if (g == maxColor)     h = 2.0 + (b - r) / chroma;
+            else                        h = 4.0 + (r - g) / chroma;
+
+            // Snap Hue to gamut
+            if (h < 0.0) h = h / 6.0 + 1.0;
+            else         h /= 6.0;
+        }
+
+        return vec3(h, s, l);
+    }
+
+    float hueToRgb(float p, float q, float t) {
+        if (t < 0.0)       t += 1.0;
+        if (t > 1.0)       t -= 1.0;
+        if (t < 1.0 / 6.0) return p + (q - p) * 6.0 * t;
+        if (t < 0.5)       return q;
+        if (t < 2.0 / 3.0) return p + (q - p) * (2.0 / 3.0 - t) * 6.0;
+
+        return p;
+    }
+
+    // Converts (1.0, 1.0, 1.0) scale HSL values to (1.0, 1.0, 1.0) scale RGB values
+    vec3 hslToRgb(vec3 hsl) {
+        float h = hsl.x;
+        float s = hsl.y;
+        float l = hsl.z;
+        float r;
+        float g;
+        float b;
+
+        if (s == 0.0) {
+            r = g = b = l; // achromatic
+        } else {
+            // p and q are temp variables without semantic meaning on their own
+            float q = l < 0.5 ? l * (1.0 + s) : l + s - l * s;
+            float p = 2.0 * l - q;
+            r = hueToRgb(p, q, h + 1.0 / 3.0);
+            g = hueToRgb(p, q, h);
+            b = hueToRgb(p, q, h - 1.0 / 3.0);
+        }
+
+        return vec3(r, g, b);
+    }
+
+    vec4 modulate(vec4 imageColor) {
+        vec3 hsl = rgbToHsl(imageColor.rgb);
+        vec3 rgb = hslToRgb(vec3(hsl.x + u_hsl.x, hsl.y * u_hsl.y, hsl.z * u_hsl.z));
+        return vec4(rgb, 1.0);
+    }
+
+    void main(void){
+        gl_FragColor = modulate(texture2D(sampler0, vTex));
+    }
+</script>
+
+<script id="shader-vs" type="x-shader/x-vertex">
+    attribute vec2 aVertex;
+    attribute vec2 aUV;
+    varying vec2 vTex;
+    uniform vec2 pos;
+
+    void main(void) {
+        gl_Position = vec4(aVertex + pos, 0.0, 1.0);
+        vTex = aUV;
+    }
+</script>
+
+<script>
+    function getShader(gl, id) {
+
+        var script = document.getElementById(id);
+        if (!script) {
+            return null;
+        }
+
+        var shader;
+        if (script.type == "x-shader/x-fragment")
+            shader = gl.createShader(gl.FRAGMENT_SHADER);
+        else if (script.type == "x-shader/x-vertex")
+            shader = gl.createShader(gl.VERTEX_SHADER);
+        else
+            return null;
+
+        gl.shaderSource(shader, script.text);
+        gl.compileShader(shader);
+
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            alert(gl.getShaderInfoLog(shader));
+            return null;
+        }
+
+        return shader;
+    }
+
+    function createProgram(gl) {
+        var vertShaderObj = getShader(gl, "shader-vs");
+        var fragShaderObj = getShader(gl, "shader-fs");
+        var program = gl.createProgram();
+        gl.attachShader(program, vertShaderObj);
+        gl.attachShader(program, fragShaderObj);
+
+        gl.linkProgram(program);
+        gl.useProgram(program);
+        return program
+    }
+
+    function webGLStart() {
+        const FPS = 60;
+        const HUE_VELOCITY = 0.005;
+
+        var img, tex, vloc, tloc, vertexBuff, texBuff;
+
+        var hue = 0;
+
+        var canvas = document.getElementById('canvas');
+        var gl = canvas.getContext('experimental-webgl');
+        var uLoc;
+
+        var program = createProgram(gl)
+        gl.viewport(0, 0, canvas.width, canvas.height);
+
+        vertexBuff = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuff);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, 1, -1, -1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+
+        texBuff = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, texBuff);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 1, 0, 0, 1, 0, 1, 1]), gl.STATIC_DRAW);
+
+        vloc = gl.getAttribLocation(program, 'aVertex');
+        tloc = gl.getAttribLocation(program, 'aUV');
+        uLoc = gl.getUniformLocation(program, 'pos');
+        var hslLocation = gl.getUniformLocation(program, "u_hsl");
+
+        var drawImage = function(imgobj) {
+            tex = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, tex);
+
+            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgobj);
+
+            gl.enableVertexAttribArray(vloc);
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuff);
+            gl.vertexAttribPointer(vloc, 2, gl.FLOAT, false, 0, 0);
+
+            gl.enableVertexAttribArray(tloc);
+            gl.bindBuffer(gl.ARRAY_BUFFER, texBuff);
+            gl.bindTexture(gl.TEXTURE_2D, tex);
+            gl.vertexAttribPointer(tloc, 2, gl.FLOAT, false, 0, 0);
+
+            gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+        };
+
+        img = new Image();
+        img.src = 'crayons.jpg'
+
+        function drawScene() {
+            hue = (hue + HUE_VELOCITY) % 1.0
+
+            gl.uniform3f(hslLocation, hue, 1, 1)
+
+            drawImage(img);
+
+            setTimeout(() => {
+                requestAnimationFrame(drawScene);
+            }, 1000 / FPS)
+        }
+
+        img.onload = drawScene;
+    }
+</script>
+</head>
+
+<body onload="webGLStart();">
+    <canvas id="canvas" width=640 height=640></canvas>
+</body
+
+</html>
