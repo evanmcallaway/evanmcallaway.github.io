@@ -1,0 +1,49 @@
+<html>
+  <head>
+    <title>Replacing Colors with WebGL</title>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+    <script src="/layout/load.js"></script>
+    <script src="color.js"></script>
+  </head>
+
+  <script>
+    function startCanvases() {
+      webGLStart('canvas1', '/dev/webgl/color_swaps/controller.png', [0xCCD5D9])
+      webGLStart('canvas2', '/dev/webgl/color_swaps/controller.png', [0x336DB7, 0x41B25C, 0xDE322A, 0xECBB0E])
+    }
+  </script>
+
+  <body onload="startCanvases()">
+    <div class="container">
+      <h3>Replacing Colors with WebGL</h3>
+
+      <p>
+        This is a dumb prototype of how you can manipulate specific colors in an image using a WebGL fragment shader.  I'm replacing a specific list of colors on each game controller with some arbitrary colors that I'm modulating each frame, but there's no reason you couldn't swap to more specific colors, like the output of a color picker tool.
+      </p>
+
+      <div class="center-content">
+        <canvas id="canvas1" width=320 height=320></canvas>
+        <canvas id="canvas2" width=320 height=320></canvas>
+      </div>
+
+      <div>
+        <p>A couple of key notes on this:</p>
+        <ul class="browser-default">
+          <li>8-bit RGB is typically represented by a color cube with dimensions from 0-255.  Because vectors, WebGL uses a color cube with dimensions from 0-1, so we have to scale our color math proportionally.</li>
+          <li>As always, keep in mind that you cannot perform equality operations on floating point values, like the ones in our vectors.  Instead, check for "close enough" matches based on your application's required tolerance.</li>
+      </div>
+
+      <p>
+        The source for his page is available <a href="https://github.com/evanmcallaway/evanmcallaway.github.io/tree/master/dev/webgl/color_swaps">here</a>.
+      </p>
+
+      <p>TODOs:</p>
+      <ul class="browser-default">
+        <li>Generate better "new" colors.</li>
+        <li>Convert colors.js into a module.</li>
+        <li>Separate WebGL boilerplate from the meat of the project.</li>
+        <li>Expand explanation text.</li>
+      </ul>
+    </div>
+  </body>
+</html>

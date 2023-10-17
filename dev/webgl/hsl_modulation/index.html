@@ -52,14 +52,26 @@
         <ul class="browser-default">
           <li>8-bit RGB is typically represented by a color cube with dimensions from 0-255.  Because vectors, WebGL uses a color cube with dimensions from 0-1, so we have to scale our color math proportionally.</li>
           <li>HSL is a cylindrical colorspace, with hue representing the angle along a circular cross-section, saturation is distance from the middle of a circular cross-section, and lightness is distance along the height of the cylinder.</li>
-          <li>We can treat saturation and lightness as linear values and apply proportional transformations to manipulate them.  To avoid unpleasant jumps in our color manipulation, we'll reverse direction on our transformations.</li>
-          <li>Hue manipulation is handled by increasing the "angle" of the color on the cylinder.  Note that because hue is traveling around a circle, we never need to reverse direction -- once we've travelled fully around the circle we can just keep going.</li>
+          <li>We can treat saturation and lightness as linear values and apply proportional transformations to manipulate them.  To avoid unpleasant jumps in our color manipulation animation, we'll reverse direction on our transformations.</li>
+          <li>Hue manipulation is handled by increasing the "angle" of the color on the cylinder.  Note that because hue is traveling around a circle, we never need to reverse direction for a smooth animation -- once we've travelled fully around the circle we can just keep going.</li>
         </ul>
       </div>
 
       <p>
-        You'll note that I don't darkening with lightness modulation on this page.  HSL has some pretty gnarly edge cases that come out of darker colors being more saturated, so near-white dithered colors start to look a bit deep fried in some cases.  If you really need to modulate an image to be darker, I highly recommend using HSB/HSV instead.
+        You'll note that I'm not showcasing darkening with lightness modulation on this page.  HSL has some pretty gnarly edge cases that come out of darker colors being more saturated, so near-white dithered colors start to look a bit deep fried in some cases.  If you really need to modulate an image to be darker, I highly recommend using HSB/HSV instead.
       </p>
+
+      <p>
+        The source for his page is available <a href="https://github.com/evanmcallaway/evanmcallaway.github.io/tree/master/dev/webgl/hsl_modulation">here</a>.
+      </p>
+
+      <p>TODOs:</p>
+      <ul class="browser-default">
+        <li>Convert hsl.js into a module.</li>
+        <li>Separate WebGL boilerplate from the meat of the project.</li>
+        <li>Expand explanation text.</li>
+        <li>Add colorspace diagrams for easier visualization.</li>
+      </ul>
     </div>
   </body>
 </html>
