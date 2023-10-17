@@ -1,0 +1,38 @@
+body {
+    min-height:100vh;
+    margin:0;
+    position: relative;
+}
+
+header {
+    min-height:50px;
+}
+
+nav .brand-logo {
+    padding-left: 20px;
+}
+
+body::after {
+  content: '';
+  display: block;
+  height: 50px; /* Set same as footer's height */
+}
+
+.center-content {
+    text-align: center;
+}
+
+pre code {
+    background-color: #eee;
+    border: 1px solid #999;
+    display: block;
+    padding: 20px;
+}
+
+.page-footer {
+  padding-top: 0px;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 50px;
+}

@@ -8,14 +8,14 @@
 
   <script>
     function startCanvases() {
-      webGLStart('canvas1', '/dev/webgl/hsl_modulation/colorful.jpg', { hue: true });
-      webGLStart('canvas2', '/dev/webgl/hsl_modulation/crayons.jpg', { hue: true });
+      webGLStart('canvas1', '/dev/webgl/hsl_modulation/colorful.jpg', { hue: true })
+      webGLStart('canvas2', '/dev/webgl/hsl_modulation/crayons.jpg', { hue: true })
 
-      webGLStart('canvas3', '/dev/webgl/hsl_modulation/colorful.jpg', { saturation: true });
-      webGLStart('canvas4', '/dev/webgl/hsl_modulation/crayons.jpg', { saturation: true });
+      webGLStart('canvas3', '/dev/webgl/hsl_modulation/colorful.jpg', { saturation: true })
+      webGLStart('canvas4', '/dev/webgl/hsl_modulation/crayons.jpg', { saturation: true })
 
-      webGLStart('canvas5', '/dev/webgl/hsl_modulation/colorful.jpg', { lightness: true });
-      webGLStart('canvas6', '/dev/webgl/hsl_modulation/crayons.jpg', { lightness: true });
+      webGLStart('canvas5', '/dev/webgl/hsl_modulation/colorful.jpg', { lightness: true })
+      webGLStart('canvas6', '/dev/webgl/hsl_modulation/crayons.jpg', { lightness: true })
     }
   </script>
 
@@ -52,7 +52,7 @@
         <ul class="browser-default">
           <li>8-bit RGB is typically represented by a color cube with dimensions from 0-255.  Because vectors, WebGL uses a color cube with dimensions from 0-1, so we have to scale our color math proportionally.</li>
           <li>HSL is a cylindrical colorspace, with hue representing the angle along a circular cross-section, saturation is distance from the middle of a circular cross-section, and lightness is distance along the height of the cylinder.</li>
-          <li>We can treat saturation and lightness as linear values and apply proportional transformations to manipulate them.</li>
+          <li>We can treat saturation and lightness as linear values and apply proportional transformations to manipulate them.  To avoid unpleasant jumps in our color manipulation, we'll reverse direction on our transformations.</li>
           <li>Hue manipulation is handled by increasing the "angle" of the color on the cylinder.  Note that because hue is traveling around a circle, we never need to reverse direction -- once we've travelled fully around the circle we can just keep going.</li>
         </ul>
       </div>
