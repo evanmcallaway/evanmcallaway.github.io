@@ -1,0 +1,43 @@
+<html>
+  <head>
+    <title>You should be using git rebase --onto</title>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+    <script src="/layout/load.js"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <h3>You should be using <code>git rebase --onto</code></h3>
+
+      <h4>What's it for?</h4>
+      <p>
+        At its core a rebase onto operation is used for moving commits from a specific parent commit to a new specific parent commit.
+      </p>
+      <p>Typical situations this may be useful include:</p>
+      <ul class="browser-default">
+        <li>Your branch is based off another branch that has been merged.</li>
+        <li>Your branch is based off another branch that has been squashed.</li>
+        <li>Your branch is based off another branch that has been deleted.</li>
+        <li>Your branch is based off a branch that is unrelated to your branch's work.</li>
+        <li>You created a branch on the wrong base and would like to move it onto a different base branch.</li>
+      </ul>
+
+      <h4>Usage</h4>
+      <code>git rebase --onto newbase oldbase</code>
+      <p>Note that the newbase and oldbase arguments are reversed from a typical "source -> destination" argument order.</p>
+      <p>If you currently have a remote branch, you will need to force push your changes onto it after running this command.</p>
+
+      <h4>Examples</h4>
+      <p>To move your branch's base to be master from oldbranch.</p>
+      <code>git rebase --onto origin/master oldbranch</code>
+
+      <p>To move your branch's base to be master from af893ea (where af893ea is the commit just before your work).</p>
+      <code>git rebase --onto origin/master af893ea</code>
+
+      <p>To move your branch's base to be the commit eb3a99f from af893ea (where af893ea is the commit just before your work).</p>
+      <code>git rebase --onto eb3a99f af893ea</code>
+
+      <p>After resolving any conflicts, force push your changes to your remote branch if it exists.</p>
+    </div>
+  </body>
+</html>

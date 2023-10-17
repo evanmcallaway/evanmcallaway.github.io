@@ -1,0 +1,86 @@
+<html>
+  <head>
+    <title>Faster Color Replacement with RMagick</title>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+    <script src="/layout/load.js"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <h3>Faster Color Replacement with RMagick</h3>
+
+      <p>So...you've got an image and you would like to replace one or more specific colors in the image with other specific colors.  You also want it done reasonably quickly.</p>
+
+      <div class="center-content">
+        <img src="/dev/images/controller.png"></img> <img src="/dev/images/recolored_controller.png"></img>
+      </div>
+
+      <h4>Replacing Colors the Slow Way</h4>
+
+      <p>Let's look at how to replace colors using RMagick's <a href="https://rmagick.github.io/image2.html#opaque">opaque</a> operation.
+
+      <pre>
+        <code>
+require 'rmagick'
+
+img = Magick::Image.read('controller.png').first
+
+# Pull current colors in the image
+colors = img.color_histogram.keys.map { |c| c.to_color(Magick::AllCompliance, false, 8, true) }
+
+# Build some pseudo-arbitrary new colors
+new_colors = colors.map { |c| "##{c[1..].reverse}" }
+
+colors.each_with_index do |color, i|
+  img = img.opaque(color, new_colors[i])
+end
+
+img.write('out.png')
+        </code>
+      </pre>
+
+      <p>There are a number of issues with this approach.</p>
+      <ul class="browser-default">
+        <li>It's slow.  We're asking ImageMagick to scan the whole image for each color we would like to swap.  Performance drops as the input image or color list grows.  Running our sample code against a 3013x2852 version of our game controller image takes around 4.1 seconds.</li>
+        <li>There's no way of diffentiating pixels that have changed from ones that haven't so it doesn't work if one of your new colors is already present in the image.</li>
+      </ul>
+
+      <p>Just say "no" to this approach unless you have a very specific usecase.</p>
+
+      <h4>Replacing Colors the Fast Way with Palette Images</h4>
+      <p>Provided the image you would like to manipulate has a relatively limited number of colors (less than 256 is the common), you should consider performing your recoloring operations with palette images.  Instead of encoding each color in each pixel, the colors are stored in a lookup table that is referenced by individual pixels.  We can recolor our image simply by manipulting that lookup table!</p>
+
+      <pre>
+        <code>
+require 'rmagick'
+require 'json'
+
+img = Magick::Image.read('controller.png').first
+
+# Convert the image to a palette image with indexed color
+img.class_type = Magick::PseudoClass
+
+# Extract the image's palette.  RMagick doesn't expose this on their Image class for reasons.
+# We can work around that by pulling a 1x1 pixel version of our image and dumping its data.
+dummy = img.excerpt(0, 0, 1, 1)
+dummy.format = 'JSON'
+colors = JSON.parse(dummy.to_blob).first.dig('image', 'colormap').map do |color|
+  Magick::Pixel.from_color(color).to_color(Magick::AllCompliance, false, 8, true)
+end
+
+# Build some pseudo-arbitrary new colors
+new_colors = colors.map { |c| "##{c[1..].reverse}" }
+
+# Replace colors in the color lookup table
+new_colors.each_with_index do |new_color, i|
+  img.colormap(i, new_color)
+end
+
+img.write('out.png')
+        </code>
+      </pre>
+
+      <p>Running the against the same test image as the earlier script, this operation takes around 1.6 seconds to complete.  If you have the opportunity to pre-process and cache the palette version of your input image, the entire operation including reading and writing the file only takes around 0.45 seconds, which is the roughly the same amount of time required to read the file in and write it back to disk without manipulation.</p>
+    </div>
+  </body>
+</html>
