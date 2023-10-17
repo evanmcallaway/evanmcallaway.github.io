@@ -17,7 +17,7 @@
 
       <h4>Replacing Colors the Slow Way</h4>
 
-      <p>Let's look at how to replace colors using RMagick's <a href="https://rmagick.github.io/image2.html#opaque">opaque</a> operation.
+      <p>Let's look at how to replace colors using RMagick's <a href="https://rmagick.github.io/image2.html#opaque">opaque</a> operation, which is used to replace one color in an image with another color.
 
       <pre>
         <code>
@@ -42,7 +42,7 @@ img.write('out.png')
       <p>There are a number of issues with this approach.</p>
       <ul class="browser-default">
         <li>It's slow.  We're asking ImageMagick to scan the whole image for each color we would like to swap.  Performance drops as the input image or color list grows.  Running our sample code against a 3013x2852 version of our game controller image takes around 4.1 seconds.</li>
-        <li>There's no way of diffentiating pixels that have changed from ones that haven't so it doesn't work if one of your new colors is already present in the image.</li>
+        <li>There's no way of diffentiating pixels that have changed from ones that haven't so it doesn't work if one of your new colors is already present in the image.  You can work around this limitation by swapping conflicting colors to other colors, but this will take additional time.</li>
       </ul>
 
       <p>Just say "no" to this approach unless you have a very specific usecase.</p>
@@ -81,6 +81,8 @@ img.write('out.png')
       </pre>
 
       <p>Running the against the same test image as the earlier script, this operation takes around 1.6 seconds to complete.  If you have the opportunity to pre-process and cache the palette version of your input image, the entire operation including reading and writing the file only takes around 0.45 seconds, which is the roughly the same amount of time required to read the file in and write it back to disk without manipulation.</p>
+
+      <p>As an added bonus, palette images are smaller on disk -- they should only require 8 bits per pixel instead of 8 bits per channel per pixel.  Your mileage will vary depending on how well compression works on your images.</p>
     </div>
   </body>
 </html>
