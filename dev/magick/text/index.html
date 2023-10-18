@@ -1,0 +1,152 @@
+<html>
+  <head>
+    <title>Crafting Artisanal Memes with RMagick</title>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+    <script src="/layout/load.js"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <h3>Crafting Artisanal Memes with RMagick</h3>
+
+      <p>Joking aside, ImageMagick and RMagick give us some pretty powerful tools for adding formatted text to images.  Here's a quick example of how to write text with custom per-line formatting.</p>
+
+      <h4>Formatted Text</h4>
+
+      <p>Writing text is done via RMagick's <a href="https://rmagick.github.io/draw.html">Magick::Draw</a>.  Let's define a simple format that we can pass around that defines our line format.</p>
+
+      <p>For talking purposes, let's do something like this:</p>
+
+      <pre>
+        <code>
+{
+  text: 'Lorem Ipsum',      # The text to write
+  width: 480,               # The width of our text box
+  height: 640,              # The height of our text box
+  alignment: 'north'        # Which side of the text box are we writing?
+  x: 0,                     # Horizontal offset
+  y: 0,                     # Vertical offset
+  size: 40,                 # Text size
+  color: 'white',           # Text color
+  outline_color: 'black',   # Text outline color
+  font_weight: 'bold',      # Font weight
+  font_family: 'Helvetica', # Font
+  font_style:  'Normal',    # Font style
+  line_spacing: 0           # Spacing adjustment between text lines
+}
+        </code>
+      </pre>
+
+      <p>For text box sizing, it's often convenient to use the full image dimensions and let alignment handle the rest if you're adding header or footer text.</p>
+
+      <p>Obviously that's a lot of formatting options and it would be a pain if we had to specify all of them all the time, so let's make sure we have happy defaults.</p>
+
+      <h4>Format Wrangler</h4>
+
+      <p>I've put together a little helper to wrangle the text formatting.</p>
+
+      <pre>
+        <code>
+require 'rmagick'
+
+class TextWriter
+  class << self
+    def write(image, text_lines)
+      text_lines.each { |line| write_line(image, line) }
+    end
+
+    private
+
+    def write_line(image, line)
+      draw = Magick::Draw.new
+
+      text_format(line).each { |key, value| draw.send("#{key}=", value) }
+
+      draw.annotate(image, line.fetch(:width, 0), line.fetch(:height, 0), line[:x], line[:y], text(line))
+    end
+
+    def text_format(line)
+      {
+        interline_spacing: line.fetch(:line_spacing, 0),
+        font_family:       line.fetch(:font, 'Helvetica'),
+        font_weight:       magick_const(line.fetch(:font_weight, 'normal'), 'Weight'),
+        font_style:        magick_const(line.fetch(:font_style, 'normal'), 'Style'),
+        pointsize:         line.fetch(:size, 20),
+        gravity:           magick_const(line.fetch(:alignment, 'north_west'), 'Gravity'),
+        stroke:            line[:outline_color],
+        fill:              line[:color]
+      }.compact
+    end
+
+    def text(line)
+      # escape magick characters (https://rmagick.github.io/draw.html#annotate)
+      line[:text].gsub('%', '\%')
+    end
+
+    def magick_const(weight, category)
+      # Use .constantize here if you have ActiveSupport included.
+      # Sanitize this if you're taking input from your users!
+      Object.const_get("Magick::#{weight.capitalize}#{category}")
+    end
+  end
+end
+        </code>
+      </pre>
+
+      <h4>A Simple Example</h4>
+
+      <p>Let's try doing something basic with that to generate some simple text on an image.  This is leaning heavily on our formatting defaults.</p>
+
+      <div class="center-content">
+        <img src="cheezburger_wizard_lame.jpg"></img>
+      </div>
+
+      <pre>
+        <code>
+require './text_writer'
+
+format = { width: 480, height: 640, x: 0, y: 20 }
+
+img = Magick::Image.read('wizard:').first
+TextWriter.write(img, [
+  { text: 'I CAN HAZ',   alignment: 'north' }.merge(format),
+  { text: 'CHEEZBURGER', alignment: 'south' }.merge(format)
+])
+img.write('cheezburger_wizard.jpg')
+        </code>
+      </pre>
+
+      <h4>Meme Text</h4>
+
+      <p>Let's try doing something basic with that to generate some simple text on an image.  This is leaning heavily on our formatting defaults.</p>
+
+      <div class="center-content">
+        <img src="cheezburger_wizard.jpg"></img>
+      </div>
+
+      <pre>
+        <code>
+          require './text_writer'
+
+          format = {
+            width: 480,
+            height: 640,
+            x: 0,
+            y: 20,
+            size: 40,
+            color: 'white',
+            outline_color: 'black',
+            font_weight: 'bold'
+          }
+
+          img = Magick::Image.read('wizard:').first
+          img = TextWriter.write(img, [
+            { text: 'I CAN HAZ',   alignment: 'north' }.merge(format),
+            { text: 'CHEEZBURGER', alignment: 'south' }.merge(format)
+          ])
+          img.write('cheezburger_wizard.jpg')
+        </code>
+      </pre>
+    </div>
+  </body>
+</html>
