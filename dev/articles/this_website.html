@@ -1,0 +1,64 @@
+<html>
+<head>
+<title>Engineering Examples</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<meta charset="utf-8">
+    <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="preload" as="style" href="/layout/layout.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
+    <link rel="stylesheet" href="/layout/layout.css">
+
+    <link rel="preload" as="script" href="/layout/load.js" />
+    <script src="/layout/load.js" defer></script>
+</head>
+<body style="opacity: 0; ">
+  <div class="container">
+    <h3>This Kinda Dumb Webite</h3>
+    <p>
+        Working outside the bounds of a modern backend server or frontend stack isn't without its limitations -- you've often got to be creative if you'd like to avoid a lot of duplication and you've got to be careful with how you load your content.
+    </p>
+
+    <p>
+      To avoid rendering an unstyled page, make sure you preload your CSS!
+    </p>
+    <pre>
+      <code>
+&lt;link rel="preload" as="style" href="/layout/layout.css"&gt;
+&lt;link rel="stylesheet" href="/layout/layout.css"&gt;
+      </code>
+    </pre>
+
+    <p>
+      To avoid duplicating my header and footer on every page, I've put together a simple loading script that sandwiches layout content around your page content.
+    </p>
+    <pre>
+      <code>
+document.addEventListener("DOMContentLoaded", function() {
+  headerPromise = fetch(`/layout/header.html`).then(file => {
+    file.text().then(content => {
+      document.body.insertAdjacentHTML('afterbegin', content)
+    })
+  })
+
+  footerPromise = fetch(`/layout/footer.html`).then(file => {
+    file.text().then(content => {
+      document.body.insertAdjacentHTML('beforeend', content)
+    })
+  })
+
+  Promise.all([headerPromise, footerPromise]).then(function() {
+    document.body.style.opacity = '1'
+  })
+})
+      </code>
+    </pre>
+    <p>
+      You'll note that I'm waiting for the header and footer to load in prior to setting the page opacity.  I'm defaulting the page body to fully tranparent until my layout has been inserted.
+    </p>
+    <p>
+      Super simple and it even mostly works.  Absolutely not how you'd do it for anything other than a pet project.
+    </p>
+  </div>
+</body>
+</html>

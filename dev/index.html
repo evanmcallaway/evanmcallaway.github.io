@@ -2,10 +2,17 @@
   <head>
   <title>Engineering</title>
   <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-  <script src="/layout/load.js"></script>
+      <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="preload" as="style" href="/layout/layout.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
+    <link rel="stylesheet" href="/layout/layout.css">
+
+    <link rel="preload" as="script" href="/layout/load.js" />
+    <script src="/layout/load.js" defer></script>
 
   </head>
-  <body>
+  <body style="opacity: 0; ">
     <div class="container">
       <h3>Engineering</h3>
 
@@ -15,31 +22,35 @@
 
       <div class="collection">
         <a href="magick/color_replacement" class="collection-item">
+          <span class="new badge" data-badge-caption="RMagick"></span>
           <span class="new badge" data-badge-caption="Ruby"></span>
-          Faster Color Replacement with RMagick
+          Use Palette Images for Faster Color Replacement
         </a>
         <a href="webgl/hsl_modulation" class="collection-item">
           <span class="new badge blue" data-badge-caption="Live Demo"></span>
-          <span class="new badge" data-badge-caption="JavaScript"></span>
-          HSL Modulation with WebGL
+          <span class="new badge" data-badge-caption="WebGL"></span>
+          Live HSL Modulation
         </a>
         <a href="webgl/color_swaps" class="collection-item">
           <span class="new badge blue" data-badge-caption="Live Demo"></span>
-          <span class="new badge" data-badge-caption="JavaScript"></span>
-          Replacing Colors with WebGL
+          <span class="new badge" data-badge-caption="WebGL"></span>
+          Live Color Replacement
         </a>
         <a href="magick/text" class="collection-item">
+          <span class="new badge" data-badge-caption="RMagick"></span>
           <span class="new badge" data-badge-caption="Ruby"></span>
           Crafting Artisanal Memes with RMagick (I wish I was joking)
         </a>
-        <!--<a href="vips/stack_unstack" class="collection-item">
+        <!-- <a href="vips/stack_unstack" class="collection-item">
+          <span class="new badge" data-badge-caption="libvips"></span>
           <span class="new badge" data-badge-caption="Ruby"></span>
-          Non-Standard Color Channel Handling with libvips
+          Non-Standard Color Channel Handling
         </a>-->
         <a href="magick/flags" class="collection-item">
           <span class="new badge" data-badge-caption="ImageMagick"></span>
           One-liner Country Flags
         </a>
+        <!-- Future writing -->
         <!-- DPI Demystified -->
         <!-- How to make ImageMagick stop automatically converting grey images to greyscale colorspace -->
       </div>
@@ -49,6 +60,11 @@
         <a href="articles/rebase_onto.html" class="collection-item">
           <span class="new badge" data-badge-caption="Git"></span>
           You should use <code>git rebase --onto</code>
+        </a>
+        <a href="articles/this_website.html" class="collection-item">
+          <span class="new badge" data-badge-caption="CSS"></span>
+          <span class="new badge" data-badge-caption="JavaScript"></span>
+          This website is kinda dumb
         </a>
       </div>
     </div>
