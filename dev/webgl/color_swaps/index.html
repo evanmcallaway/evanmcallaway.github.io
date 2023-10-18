@@ -1,14 +1,15 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
     <title>Replacing Colors with WebGL</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
     <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="preload" as="style" href="/layout/layout.css">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="stylesheet" href="/layout/layout.css">
 
-    <link rel="preload" as="script" href="/layout/load.js" />
+    <link rel="preload" as="script" href="/layout/load.js">
     <script src="/layout/load.js" defer></script>
 
     <script src="color.js"></script>
@@ -32,8 +33,8 @@
       <p>On the left we're replacing a single color.  One the right we're replacing all four button colors.</p>
 
       <div class="center-content">
-        <canvas id="canvas1" width=320 height=320></canvas>
-        <canvas id="canvas2" width=320 height=320></canvas>
+        <canvas id="canvas1" width="320" height="320"></canvas>
+        <canvas id="canvas2" width="320" height="320"></canvas>
       </div>
 
       <div>
@@ -41,6 +42,7 @@
         <ul class="browser-default">
           <li>8-bit RGB is typically represented by a color cube with dimensions from 0-255.  Because vectors, WebGL uses a color cube with dimensions from 0-1, so we have to scale our color math proportionally.</li>
           <li>As always, keep in mind that you cannot perform equality operations on floating point values, like the ones in our vectors.  Instead, check for "close enough" matches based on your application's required tolerance.</li>
+        </ul>
       </div>
 
       <h4>Colors to Vectors</h4>
@@ -80,13 +82,13 @@ uniform vec4 u_original_colors[MAX_COLORS];
 uniform int u_colors_count;
 
 vec4 colorSwap(vec4 oldColor[MAX_COLORS], vec4 newColor[MAX_COLORS], vec4 imageColor) {
-  for (int i = 0; i < MAX_COLORS; i++) {
-    if (i < u_colors_count) {
+  for (int i = 0; i &lt; MAX_COLORS; i++) {
+    if (i &lt; u_colors_count) {
       // Calculate distance^2 to avoid using an expensive square root operation
       vec4 delta = oldColor[i] - imageColor;
       float distSquared = dot(delta, delta);
 
-      if (distSquared < COLOR_TOLERANCE) return newColor[i];
+      if (distSquared &lt; COLOR_TOLERANCE) return newColor[i];
     }
   }
   return imageColor; // No Match, keep the original color

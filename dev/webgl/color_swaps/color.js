@@ -38,7 +38,6 @@ async function createProgram(gl) {
 
 async function webGLStart(target, src, targetColors) {
   const FPS = 30
-  const HUE_VELOCITY = 0.0025
 
   var img, tex, vloc, tloc, vertexBuff, texBuff, newColorsLoc, originalColorsLoc, colorsCountLoc
 
@@ -108,7 +107,7 @@ async function webGLStart(target, src, targetColors) {
   }
 
   function newColor(index, delta) {
-    color = [0.0, 0.0, 0.0, 1.0]
+    var color = [0.0, 0.0, 0.0, 1.0]
     color[0] = delta
     if (index % 2 == 0) color[1] = delta
     if (index % 3 == 0) color[2] = delta
