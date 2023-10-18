@@ -17,9 +17,9 @@
 
       <h4>Formatted Text</h4>
 
-      <p>Writing text is done via RMagick's <a href="https://rmagick.github.io/draw.html">Magick::Draw</a>.  Let's define a simple format that we can pass around that defines our line format.</p>
+      <p>Writing text is done via RMagick's <a href="https://rmagick.github.io/draw.html">Magick::Draw</a>.  Let's define a simple format that we can pass around that defines our line format.  Let's do something that's easy to serialize and deserialize.</p>
 
-      <p>For talking purposes, let's do something like this:</p>
+      <p>For talking purposes, something like this:</p>
 
       <pre>
         <code>
@@ -41,13 +41,13 @@
         </code>
       </pre>
 
-      <p>For text box sizing, it's often convenient to use the full image dimensions and let alignment handle the rest if you're adding header or footer text.</p>
+      <p>For text box sizing it's often convenient to use the full image dimensions and let alignment handle the rest if you're adding header or footer text.</p>
 
       <p>Obviously that's a lot of formatting options and it would be a pain if we had to specify all of them all the time, so let's make sure we have happy defaults.</p>
 
       <h4>Format Wrangler</h4>
 
-      <p>I've put together a little helper to wrangle the text formatting.</p>
+      <p>I've put together a little helper to wrangle the text formatting and add the text to our image.  Typically I prefer to wrap RMagick in a helper class with chainable methods, but we'll keep this simple and just make a little helper.</p>
 
       <pre>
         <code>
@@ -130,25 +130,25 @@ img.write('cheezburger_wizard.jpg')
 
       <pre>
         <code>
-          require './text_writer'
+require './text_writer'
 
-          format = {
-            width: 480,
-            height: 640,
-            x: 0,
-            y: 20,
-            size: 40,
-            color: 'white',
-            outline_color: 'black',
-            font_weight: 'bold'
-          }
+format = {
+  width: 480,
+  height: 640,
+  x: 0,
+  y: 20,
+  size: 40,
+  color: 'white',
+  outline_color: 'black',
+  font_weight: 'bold'
+}
 
-          img = Magick::Image.read('wizard:').first
-          img = TextWriter.write(img, [
-            { text: 'I CAN HAZ',   alignment: 'north' }.merge(format),
-            { text: 'CHEEZBURGER', alignment: 'south' }.merge(format)
-          ])
-          img.write('cheezburger_wizard.jpg')
+img = Magick::Image.read('wizard:').first
+TextWriter.write(img, [
+  { text: 'I CAN HAZ',   alignment: 'north' }.merge(format),
+  { text: 'CHEEZBURGER', alignment: 'south' }.merge(format)
+])
+img.write('cheezburger_wizard.jpg')
         </code>
       </pre>
     </div>
