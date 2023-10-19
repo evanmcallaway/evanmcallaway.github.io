@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Non-Standard Color Channel Handling with libvips</title>
+    <title>Color Channel Manipulation with libvips</title>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
     <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="preload" as="style" href="/layout/layout.css">
@@ -15,7 +15,127 @@
 
   <body style="opacity: 0; ">
     <div class="container">
-      <h3>Non-Standard Color Channel Handling with libvips</h3>
+      <h3>Color Channel Manipulation with libvips</h3>
+
+      <h4>Standard Color Channels</h4>
+
+      <p>Let's take a high level look at the normal color channels in an image.  Under most typical situations we think about color as being stored in three or four color channels, the most common being red, green, blue, and optionally an alpha or transparency channel.  A single channel to represent greyscale or a two channel image to represent greyscale with transparency is also reasonably common.</p>
+
+      <p>In all cases it's useful to always think about channels as independent greyscale images that our rendering application treats as the intensity level of some particular color or attribute.</p>
+
+      <p>The common case scenario of wanting to store RGB, RGBA, or Greyscale are so useful that many file formats bake in directly into their specification.</p>
+
+      <p>What's key is that the file format specification provides a contract so that all applications that support a particular format can agree around how to encode and render some raw data into an image.</p>
+
+      <div class="center-content">
+        <object data="pixel.svg" type="image/svg+xml" width="640" height="290"></object>
+        <div>Figure 4.2 from <i>Portable Network Graphics (PNG): Functional specification. ISO/IEC 15948:2003 (E)</i></div>
+        <div>They seem to have an error in the green channel -- the sample depth should be identical for all channels.</div>
+      </div>
+
+      <h4>Playing With Channels</h4>
+
+      <h5>Decomposition</h5>
+
+      <p>Let's start by decomposing an image into channels.</p>
+
+      <div class="center-content">
+        <img src="/dev/images/lady.jpg"></img>
+      </div>
+
+      <div class="center-content">
+        <img src="lady_R.jpg"></img><img src="lady_G.jpg"></img><img src="lady_B.jpg"></img>
+        <div>It may seem a little unintuitive, but lighter colors are higher values, so the red dress is mostly white in the R channel an darker in the other channels.</div>
+      </div>
+
+      <pre>
+        <code>
+require 'vips'
+
+source_file = Vips::Image.new_from_file('lady.jpg')
+source_file.bandsplit.each_with_index do |channel, index|
+  channel.write_to_file("lady_#{'RGB'[index]}.jpg")
+end
+        </code>
+      </pre>
+
+      <h5>Recomposition</h5>
+
+      <p>We can now recombine channels in various orders to get...interesting results.  Keep in mind that our red channel is much more intense than our other two channels so it will emphasize whichever channel we place it in.</p>
+
+      <div class="center-content">
+        <img src="/dev/images/lady.jpg"></img><img src="lady_remixed.jpg"></img><img src="lady_remixed2.jpg"></img>
+      </div>
+
+      <pre>
+        <code>
+require 'vips'
+
+lady_r = Vips::Image.new_from_file('lady_R.jpg')
+lady_g = Vips::Image.new_from_file('lady_G.jpg')
+lady_b = Vips::Image.new_from_file('lady_B.jpg')
+
+lady_r.bandjoin([lady_g, lady_b]).copy(interpretation: :srgb).write_to_file('lady_rebuilt.jpg')
+lady_g.bandjoin([lady_r, lady_b]).copy(interpretation: :srgb).write_to_file('lady_remixed.jpg')
+lady_g.bandjoin([lady_b, lady_r]).copy(interpretation: :srgb).write_to_file('lady_remixed2.jpg')
+        </code>
+      </pre>
+
+      <h4>Extra Color Channels</h4>
+
+      <p>So why should we can about additional color channels?  Some applications, like Photoshop and Gimp, use the first 3-4 channels as a typical RGB/RGBA preview and give you the option of storing individually colored spot channels, where each channel is given a specific color and the channel is used to represent the intensity of that color present in each pixel. It's quite useful for print applications where specific ink colors are applied to each channel.</p>
+
+      <p>A key point here is that this use of extra channels is not specified by any particular standard, it is specific to a particular application's whims.  These additional channels are therefore useful if you own both the encoding and rendering of the files and you have a specific useful where encoding additional per-data pixel is somehow useful.  Provided the pixel dimensions of the images are the same there's absolutely nothing stopping you from hiding a second image in channels 5 through 9 while channels 1-4 encode an image as normal.</p>
+
+      <p>Keep in mind that many image formats do not support non-standard color bands.  TIFF files support over four bands so are a great choice if you need to store this kind of image.  Some applications, like ImageMagick, will throw out your non-standard bands during their read/write flow, so be careful with these images.</p>
+
+      <h5>Stack 'em up</h5>
+
+      <p>Let's make an image that has the same dimensions as our lady image.</p>
+
+      <div class="center-content">
+        <img src="wizard_cropped.jpg"></img>
+      </div>
+
+      <pre>
+        <code>convert wizard: -resize 327x300^ -crop 327x300+0+25 wizard.jpg</code>
+      </pre>
+
+      <p>Now let's hide our wizard behind the image of the lady.</p>
+
+      <pre>
+        <code>
+require 'vips'
+
+lady_image = Vips::Image.new_from_file('lady.jpg')
+wizard_image = Vips::Image.new_from_file('wizard_cropped.jpg')
+
+lady_image = lady_image.bandjoin_const(255) # Add an alpha channel
+
+lady_image.bandjoin(wizard_image).write_to_file('lady_secret_wizard.tiff')
+        </code>
+      </pre>
+
+      <div class="center-content">
+        <img src="gimp.png"></img>
+      </div>
+
+      <p>Most image viewers will just show the lady, but if you open this image in Gimp or Photoshop you will see the wizard in the "channels" menu.</p>
+
+
+      <p>Now let's recover our secret wizard image.</p>
+
+      <pre>
+        <code>
+require 'vips'
+
+lady_image = Vips::Image.new_from_file('lady_secret_wizard.tiff')
+
+# Starting at the 5th band (0 indexed), extract all but the first 4 bands.
+wizard_image = lady_image.extract_band(4, n: lady_image.bands - 4)
+wizard_image.write_to_file('revealed.jpg')
+        </code>
+      </pre>
     </div>
   </body>
 </html>
