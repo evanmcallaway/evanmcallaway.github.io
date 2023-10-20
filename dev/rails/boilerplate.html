@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Reducing Controller Boilerplate</title>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+
+    <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="preload" as="style" href="/layout/layout.css">
+<
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="/layout/layout.css">
+
+    <link rel="preload" as="script" href="/layout/load.js">
+    <script src="/layout/load.js" defer></script>
+  </head>
+
+  <body style="opacity: 0;">
+    <div class="container">
+      <h3>Reducing Controller Boilerplate</h3>
+
+      <p>Let's do a quick exercise where we take a typical Rails controller and streamline it.</p>
+
+      <p>I don't normally use Rails' scaffolding but let's use it to generate a typical CRUD controller for a new object in our project.</p>
+
+      <pre>
+        <code>
+rails g scaffold comments title:string body:string --api
+        </code>
+      </pre>
+
+      <p>Cool.  So let's pop open that controller and take a look at it.  If you're an experienced Rails developer, this is going to look extremely familiar.</p>
+
+      <pre>
+        <code>
+class CommentsController < ApplicationController
+  before_action :set_comment, only: %i[ show update destroy ]
+
+  def index
+    @comments = Comment.all
+  end
+
+  def show
+  end
+
+  def create
+    @comment = Comment.new(comment_params)
+
+    if @comment.save
+      render :show, status: :created, location: @comment
+    else
+      render json: @comment.errors, status: :unprocessable_entity
+    end
+  end
+
+  def update
+    if @comment.update(comment_params)
+      render :show, status: :ok, location: @comment
+    else
+      render json: @comment.errors, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    @comment.destroy
+  end
+
+  private
+    def set_comment
+      @comment = Comment.find(params[:id])
+    end
+
+    def comment_params
+      params.require(:comment).permit(:title, :body)
+    end
+  end
+        </code>
+      </pre>
+
+      <p>I'm not here to knock the scaffolded code.  It's designed to be extremely approachable for beginners and it succeeds at that.</p>
+
+      <p>A couple of areas I'd improve here:</p>
+      <ul class="browser-default">
+        <li>The update and create methods are nearly identical.</li>
+        <li><code>set_comment</code> could have just been a memoized method, no need to make it a <code>before_action</code></li>
+        <li>Instead of operating a single scoped collection, the create, index, and set_comment methods are all doing their own thing.  We would like to combine these.</li>
+      </ul>
+
+      <p>Let's take a quick beat to code golf this a bit before moving on.</p>
+
+      <pre>
+        <code>
+class CommentsController < ApplicationController
+  def index
+    comments
+  end
+
+  def show
+    comment
+  end
+
+  def create
+    persist
+  end
+
+  def update
+    persist
+  end
+
+  def destroy
+    comment.destroy
+  end
+
+  private
+
+  def persist
+    if comment.update(comment_params)
+      status = comment.previously_new_record? ? :created : :ok
+      render :show, status: status, location: comment
+    else
+      render json: comment.errors, status: :unprocessable_entity
+    end
+  end
+
+  def comment
+    @comment ||= begin
+      if action_name == 'create'
+        comments.new
+      else
+        comments.find(params[:id])
+      end
+    end
+  end
+
+  def comments
+    @comments ||= Comment.all
+  end
+
+  def comment_params
+    params.require(:comment).permit(:title, :body)
+  end
+end
+        </code>
+      </pre>
+
+      <p>Not perfect, but you get the idea.  We're feeding the rest of the controller from the same <code>comments</code> method, so there's a single point of responsibility where you can later scope your controller so that's great.  Having slimmed things down a little, let's go a step deeper.</p>
+
+      <h4>Extract the Boilerplate</h4>
+
+      <p>The next step is to pull the boilerplate out into a concern that handles all the typical model interactions for you in a generic fashion.</p>
+
+      <pre>
+        <code>
+module Boilerplate
+  extend ActiveSupport::Concern
+
+  included do
+    def show
+      resource
+    end
+
+    def index
+      collection
+    end
+
+    %i[create update].each do |action|
+      define_method(action) { persist }
+    end
+
+    def destroy
+      resource.destroy
+    end
+  end
+
+  protected
+
+  def model_klass
+    @model_klass ||= controller_name.classify.constantize
+  end
+
+  def collection
+    @collection ||= model_klass.all
+  end
+
+  def resource
+    @resource ||= begin
+      if action_name == 'create'
+        collection.new
+      else
+        collection.find(params[:id])
+      end
+    end
+  end
+
+  def persist
+    if resource.update(resource_params)
+      status = resource.previously_new_record? ? :created : :ok
+      render :show, status: status, location: resource
+    else
+      render json: resource.errors, status: :unprocessable_entity
+    end
+  end
+end
+        </code>
+      </pre>
+
+      <p>What follows is an almost bare controller.  All of your controllers that are just there to do generic CRUD actions can be set up this way.</p>
+
+      <pre>
+        <code>
+class CommentsController < ApplicationController
+  include Boilerplate
+
+  private
+
+  def resource_params
+    params.require(:comment).permit(:title, :body)
+  end
+end
+
+        </code>
+      </pre>
+
+      <p>If you have a controller that almost behaves appropriately for this pattern but doesn't quite fit, just overwrite the methods that need special behavior.</p>
+
+      <p>One minor compromise I've made for simlicity is to swap the instance variables in the scaffolded views from @comment/@comments to @resource/@collection.  I wouldn't recommend it, but if you <b>REALLY</b> don't want generic instance variable names for your views, add something like this to your boilerplate concern:</p>
+
+      <pre>
+        <code>
+def resource_name
+  @resource_name ||= collection_name.singularize
+end
+
+def collection_name
+  @collection_name ||= "@#{model_klass.table_name}"
+end
+
+def collection
+  instance_variable_get(collection_name) || instance_variable_set(collection_name, model_klass.all)
+end
+
+def set_resource
+  if action_name == 'create'
+    collection.new
+  else
+    collection.find(params[:id])
+  end
+end
+
+def resource
+  instance_variable_get(resource_name) || instance_variable_set(resource_name, set_resource)
+end
+        </code>
+      </pre>
+    </div>
+  </body>
+</html>

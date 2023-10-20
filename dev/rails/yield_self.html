@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>.yield_self/.then Patterns</title>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+
+    <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="preload" as="style" href="/layout/layout.css">
+<
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="/layout/layout.css">
+
+    <link rel="preload" as="script" href="/layout/load.js">
+    <script src="/layout/load.js" defer></script>
+  </head>
+
+  <body style="opacity: 0;">
+    <div class="container">
+      <h3>.yield_self/.then Patterns</h3>
+
+      <p>What do these methods do?  Per <a href="https://apidock.com/ruby/v2_6_3/Object/yield_self">the docs</a>:</p>
+
+      <blockquote>Yields self to the block and returns the result of the block.</blockquote>
+
+      <p>At a glance this may seem extremely similar to <code>tap</code> but returning the result of the block can be extremely useful.</p>
+
+      <p>As a toy example:</p>
+
+      <pre>
+        <code>
+> 3.tap { |n| n * 2 }
+=> 3
+> 3.yield_self { |n| n * 2 }
+=> 6
+        </code>
+      </pre>
+
+      <p>Crucially, because <code>yield_self</code> returns its result, you can leverage it for chaining or conditionally chaining method calls.</p>
+
+      <p><code>yield_self</code> and <code>then</code> are aliases for one another so you can use them interchangeably.</p>
+
+      <p>Conveniently they're defined on <code>Object</code> so should be available everywhere you want them.</p>
+
+      <h4></h4>
+<!--
+      <h4>Why Should I Want Conditional Queries?</h4>
+
+      <p>Put simply: you don't want to repeat your query construction.  If you can keep it centralized, it will be easier to maintain and there won't be any possibility for unintentional divergence if a repeated query isn't updated everywhere.</p>
+
+      <p>If you have similar but sliiightly different queries for different controller actions or for handling different parameters, this is something you should check out.</p>
+
+      <h4>Traditional Conditional Queries</h4>
+
+      <p>The classic way of doing this is to take advantage of Active Record's lazy query evaluation to break this up.</p>
+
+      <p>Consider an example where we want to grab our collection of users, but we only need to include a user's groups on the show action and we also want to be able to provide some ability to filter our users.</p>
+      <pre>
+        <code>
+def collection
+  user_query = User.all
+
+  user_query = user_query.includes(:groups) if action_name == 'show'
+  user_query = user_query.where('users.created_at >= ?', DateTime.parse(params[:created_after])) if params[:created_after]
+end
+        </code>
+      </pre> -->
+    </div>
+  </body>
+</html>
