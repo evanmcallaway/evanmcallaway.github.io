@@ -149,6 +149,22 @@ wizard_image.write_to_file('revealed.jpg')
         <img src="lady_channel.jpg"></img>
       </div>
 
+      <pre>
+        <code>
+require 'vips'
+
+def build_solid_color(image, color)
+  image.copy(interpretation: :srgb).new_from_image(color)
+end
+
+lady_image = Vips::Image.new_from_file('lady.jpg')
+wizard_image = Vips::Image.new_from_file('wizard_cropped.jpg')
+
+build_solid_color(background, [200, 200, 255]).bandjoin(wizard_image.extract_band(0).invert).write_to_file('wizard_channel.jpg')
+build_solid_color(background, [100, 100, 0]).bandjoin(lady_image.extract_band(0).invert).write_to_file('lady_channel.jpg')
+        </code>
+      </pre>
+
       <p>Once we've got our channels assembled, we build a solid white background and overlay our images on top of it.
 
       <p>For the sake of visualizing properly, let's individually blend those channels over white.</p>
@@ -158,6 +174,27 @@ wizard_image.write_to_file('revealed.jpg')
         <img src="lady_background.jpg"></img>
       </div>
 
+      <pre>
+        <code>
+require 'vips'
+
+def build_solid_color(image, color)
+  image.copy(interpretation: :srgb).new_from_image(color)
+end
+
+lady_image = Vips::Image.new_from_file('lady.jpg')
+wizard_image = Vips::Image.new_from_file('wizard_cropped.jpg')
+
+wizard_channel = build_solid_color(background, [200, 200, 255]).bandjoin(wizard_image.extract_band(0).invert)
+lady_channel   = build_solid_color(background, [100, 100, 0]).bandjoin(lady_image.extract_band(0).invert)
+
+background = build_solid_color(lady_image, [255, 255, 255])
+
+background.composite([wizard_channel], :over, compositing_space: :scrgb).flatten.write_to_file('wizard_background.jpg')
+background.composite([wizard_channel], :over, compositing_space: :scrgb).flatten.write_to_file('lady_background.jpg')
+        </code>
+      </pre>
+
       <p>...and finally, let's overlay them on each other.</p>
 
       <div class="center-content">
@@ -165,8 +202,6 @@ wizard_image.write_to_file('revealed.jpg')
       </div>
 
       <p>Notice how the resulting image features color blending between the two images.</p>
-
-      <p>Any number of input images and colors should work with this technique.  Our image choices in this case were arbitrary, but you can use this technique to emulate Photoshop spot color channels.</p>
 
       <pre>
         <code>
@@ -191,6 +226,8 @@ background.composite([wizard_channel, lady_channel], :over, compositing_space: :
       <p><code>:over</code> blend mode is used to simulate overlapping semi-transparent sheets on a projector.</p>
 
       <p><code>:scrgb</code> is used as our compositing space because it is a linear RGB colorspace.  Always blend in a linear space to get even color mixing.</p>
+
+      <p>Any number of input images and colors should work with this technique.  Our image choices in this case were arbitrary, but you can use this technique to emulate Photoshop spot color channels.</p>
 
       <p>Keep in mind that when performing operations where colors blend, the overlaying order matters.  Observe the difference when we reverse our overlay order.</p>
 
