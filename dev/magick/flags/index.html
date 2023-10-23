@@ -55,6 +55,7 @@
       <div class="center-content">
         <img class="flag" src="uk.jpg">
       </div>
+      <p>First pass.</p>
       <pre>
         <code>
 convert -size 400x200 xc:blue \
@@ -64,6 +65,19 @@ convert -size 400x200 xc:blue \
   -stroke white -strokewidth 50 -draw "line 0,100 400,100" -draw "line 200,0 200,200" \
   -stroke red -strokewidth 30 -draw "line 0,100 400,100" -draw "line 200,0 200,200" \
   uk.jpg
+        </code>
+      </pre>
+
+      <p>Alternatively, we can get creative and draw one corner and rotate it.</p>
+      <pre>
+        <code>
+          convert -size 200x100 xc:blue \
+            -stroke white -strokewidth 30 -draw "line 0,0 200,100" \
+            -stroke red -strokewidth 10 -draw "line -10,0 200,105" \
+            \( +clone -rotate 180 -flop \) +append \
+            -stroke white -strokewidth 50 -draw "line 0,100, 400,100" -draw "line 200,0 200,100" \
+            -stroke red -strokewidth 30 -draw "line 0,100 400,100" -draw "line 200,0 200,100" \
+            \( +clone -rotate 180 \) -append uk.jpg
         </code>
       </pre>
     </div>
