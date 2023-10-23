@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Alpha Blending with libvips</title>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+    <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="preload" as="style" href="/layout/layout.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="/layout/layout.css">
+
+    <link rel="preload" as="script" href="/layout/load.js">
+    <script src="/layout/load.js" defer></script>
+  </head>
+
+  <body style="opacity: 0; ">
+    <div class="container">
+      <h4>Alpha Blending with libvips</h4>
+
+      <p>Essentially the idea is that you can use any greyscale image as a mask for an arbitrary color to overlay semi-transparent colored images on top of each other...you can visualize it a little bit like silk screen printing.  It's worth noting that this is a form of <a href="https://en.wikipedia.org/wiki/Alpha_compositing">alpha compositing</a>.</p>
+
+      <p>We'll take a channel from each of these images, use it as an alpha mask for a color and then combine them into what will no-doubt be a weird looking image.</p>
+
+      <div class="center-content">
+        <img src="/dev/images/wizard_cropped.jpg"></img>
+        <img src="/dev/images/lady.jpg"></img>
+      </div>
+
+      <p>We start by pulling a single channel from our wizard and lady images.  These get inverted so that darker regions in the original image are treated as more opaque.  Then we use these as transaparency channels on solid color images.  The colors in this case are the colors of our silk screen "ink".  The resulting channels look like this:</p>
+
+      <div class="center-content">
+        <img src="wizard_channel.jpg"></img>
+        <img src="lady_channel.jpg"></img>
+      </div>
+
+      <pre>
+        <code>
+require 'vips'
+
+def build_solid_color(image, color)
+  image.copy(interpretation: :srgb).new_from_image(color)
+end
+
+lady_image = Vips::Image.new_from_file('lady.jpg')
+wizard_image = Vips::Image.new_from_file('wizard_cropped.jpg')
+
+build_solid_color(background, [200, 200, 255]).bandjoin(wizard_image.extract_band(0).invert).write_to_file('wizard_channel.jpg')
+build_solid_color(background, [100, 100, 0]).bandjoin(lady_image.extract_band(0).invert).write_to_file('lady_channel.jpg')
+        </code>
+      </pre>
+
+      <p>Once we've got our channels assembled, we build a solid white background and overlay our images on top of it.
+
+      <p>For the sake of visualizing properly, let's individually blend those channels over white.</p>
+
+      <div class="center-content">
+        <img src="wizard_background.jpg"></img>
+        <img src="lady_background.jpg"></img>
+      </div>
+
+      <pre>
+        <code>
+require 'vips'
+
+def build_solid_color(image, color)
+  image.copy(interpretation: :srgb).new_from_image(color)
+end
+
+lady_image = Vips::Image.new_from_file('lady.jpg')
+wizard_image = Vips::Image.new_from_file('wizard_cropped.jpg')
+
+wizard_channel = build_solid_color(background, [200, 200, 255]).bandjoin(wizard_image.extract_band(0).invert)
+lady_channel   = build_solid_color(background, [100, 100, 0]).bandjoin(lady_image.extract_band(0).invert)
+
+background = build_solid_color(lady_image, [255, 255, 255])
+
+background.composite([wizard_channel], :over, compositing_space: :scrgb).flatten.write_to_file('wizard_background.jpg')
+background.composite([wizard_channel], :over, compositing_space: :scrgb).flatten.write_to_file('lady_background.jpg')
+        </code>
+      </pre>
+
+      <p>...and finally, let's overlay them on each other.</p>
+
+      <div class="center-content">
+        <img src="blended.jpg"></img>
+      </div>
+
+      <p>Notice how the resulting image features color blending between the two images.</p>
+
+      <pre>
+        <code>
+require 'vips'
+
+def build_solid_color(image, color)
+  image.copy(interpretation: :srgb).new_from_image(color)
+end
+
+lady_image = Vips::Image.new_from_file('lady.jpg')
+wizard_image = Vips::Image.new_from_file('wizard_cropped.jpg')
+
+wizard_channel = build_solid_color(background, [200, 200, 255]).bandjoin(wizard_image.extract_band(0).invert)
+lady_channel   = build_solid_color(background, [100, 100, 0]).bandjoin(lady_image.extract_band(0).invert)
+
+background = build_solid_color(lady_image, [255, 255, 255])
+
+background.composite([wizard_channel, lady_channel], :over, compositing_space: :scrgb).flatten.write_to_file('blended.jpg')
+        </code>
+      </pre>
+
+      <p><code>:over</code> blend mode is used to simulate overlapping semi-transparent sheets on a projector.</p>
+
+      <p><code>:scrgb</code> is used as our compositing space because it is a linear RGB colorspace.  Always blend in a linear space to get even color mixing.</p>
+
+      <p>Any number of input images and colors should work with this technique.  Our image choices in this case were arbitrary, but you can use this technique to emulate Photoshop spot color channels.</p>
+
+      <p>Keep in mind that when performing operations where colors blend, the overlaying order matters.  Observe the difference when we reverse our overlay order.</p>
+
+      <div class="center-content">
+        <img src="blended.jpg"></img><img src="blended_reverse.jpg"></img>
+      </div>
+    </div>
+  </body>
+</html>
