@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>How I like to interview Rails developers</title>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+
+    <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="preload" as="style" href="/layout/layout.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="/layout/layout.css">
+
+    <link rel="preload" as="script" href="/layout/load.js">
+    <script src="/layout/load.js" defer></script>
+  </head>
+
+  <body style="opacity: 0;">
+    <div class="container">
+      <h3>How I like to interview Rails developers</h3>
+
+      <p>My general principles:</p>
+      <ul class="browser-default">
+        <li>We aren't here to prove that we're smarter than the interview candidate.</li>
+        <li>We don't want to required an "a-ha!" moment during the interview.</li>
+        <li>We want to encourage back and forth conversation so that we can get a better understanding of collaborating with the developer.</li>
+        <li>This is only a leaping off point.  If something interesting comes up during the interview, pursue it!</li>
+      </ul>
+
+      <h4>Ruby Warm-up</h4>
+
+      <div class="row">
+        <p>What are some things you don't like about Ruby?</p>
+        <i>This question is rather open ended, but we should expect an experienced Ruby dev to have some specific feelings about this.</i>
+      </div>
+
+      <div class="row">
+        <p>Can you explain what unit testing is?  Why put in the effort?  What kinds of cases does it not cover?</p>
+        <i>Again, we're starting with broad questions.  Unit tests are intended to varify correctness of an individual unit of code.  A great answer may address unit tests as a contract that guarantees the behavior of our component.  Blindspots may include edge cases in private methods, interactions between unit tested components and also issues with external systems.</i>
+      </div>
+
+      <h4>Do You Even Database?</h4>
+
+      <p>For these questions we're going to assume that we're working in an ecommerce system where we have a Users table and an Orders table.</p>
+
+      <div class="row">
+        <p>If a user can place multiple orders, what kind of relationships should the two models have?</p>
+        <i>Users have_many Orders.  Orders belongs_to users</i>
+      </div>
+
+      <div class="row">
+        <p>Which table has the foreign key?</p>
+        <i>Orders</i>
+      </div>
+
+      <div class="row">
+        <p>What would be the name of that foreign key?</p>
+        <i>user_id</i>
+      </div>
+
+      <div class="row">
+        <p>If you wanted to fetch a list of orders that do not have an associated user, how would you write that SQL query?</p>
+        <i>SELECT * FROM ORDERS WHERE user_id IS NULL</i>
+      </div>
+
+      <div class="row">
+        <p>If you wanted to fetch a list of user that have not placed any orders, how would you write that query?</p>
+        <i>SELECT * FROM users LEFT JOIN orders ON orders.user_id = users.id WHERE orders.id  IS NULL</i>
+      </div>
+
+      <h4>Code Refactoring Exercise</h4>
+
+      <p>Reading messy code and cleaning it up is an important part of our jobs.  Let's dive into an example exercise.</p>
+
+      <p>We have some code that tiles an image horizontally and vertically to fill some print width.  This class that returns the coordinates of the upper-left hand corner of the mosaic tiles and whether they would need to be cropped to fit our print width.</p>
+
+      <p>Have the developer share their screen as though you're pair programming and take this functional but ugly code and clean it up for readability and to better follow programming best-practices.</p>
+
+      <pre>
+        <code>
+# Return x,y coordinates that correspond to the upper-left corners of our tiles
+# and a note that indicates if the tile will need to be cropped.
+class PrintLayout
+  def build(tile_width, tile_height, width, aspect_ratio)
+    raise 'bad argument' unless tile_width > 0 and tile_height > 0 and width > 0 and aspect_ratio > 0
+    raise 'print too large' if width > 500 or width / aspect_ratio > 500
+
+    result = []
+
+    i = 0
+    j = 0
+    while i * tile_width < width + 1 do
+      while j * tile_height < width / aspect_ratio + 1 do
+        if i * tile_width + tile_width > width + 1 or j * tile_height + tile_height > width / aspect_ratio + 1
+          result = result + [[[i * tile_width, j * tile_height], 'CROP']]
+        else
+          result = result + [[[i * tile_width, j * tile_height], 'FULL']]
+        end
+        j = j + 1
+      end
+      j = 0
+      i = i + 1
+    end
+
+    result_hash = {}
+    result.each do |coord, status|
+      result_hash[coord] = status
+    end
+    return result_hash
+  rescue Exception
+    return {}
+  end
+end
+
+pp PrintLayout.new.build(20, 30, 50, 0.5)
+        </code>
+      </pre>
+
+      <p>There's a lot of ways to approach this exercise, especially given the limited time constraints of an interview.  Some areas I like to see targetted:</p>
+      <ul class="browser-default">
+        <li>Add a dummy test that verifies the output so that we don't need to visually verify that the output is unchanged.</li>
+        <li>Pull object initialization out into an initialize method.</li>
+        <li>Remove exception-driven argument checking -- it masks other exceptions as we work.</li>
+        <li>Split up our one giant method into functional units.</li>
+        <li>Fix the "manual" iteration in the while loops to be more idiomatically Ruby.</li>
+        <li>Reduce duplicated logic around adding tiles.</li>
+      </ul>
+
+      <p></p>
+
+      <p>Here's an example result -- expect variation here!  For example, you may prefer to keep some of helper methods that are only called in a single spot in-line.</p>
+
+      <pre>
+        <code>
+# Return x,y coordinates that correspond to the upper-left corners of our tiles
+# and a note that indicates if the tile will need to be cropped.
+class PrintLayout
+  MAX_SIZE = 500
+
+  attr_reader :tile_width, :tile_height, :width, :height, :aspect_ratio
+
+  def initialize(tile_width, tile_height, width, aspect_ratio)
+    @tile_width = tile_width
+    @tile_height = tile_height
+    @width = width
+    @aspect_ratio = aspect_ratio
+  end
+
+  def build
+    return {} unless valid_layout?
+
+    {}.tap do |result|
+      (0...horizontal_tiles).each do |i|
+        (0...vertical_tiles).each do |j|
+          add_tile(result, i, j)
+        end
+      end
+    end
+  end
+
+  private
+
+  def valid_layout?
+    [tile_width, tile_height, width, aspect_ratio].all?(&:positive?) &&
+      (width < MAX_SIZE || height < MAX_SIZE)
+  end
+
+  def height
+    @height ||= width / aspect_ratio
+  end
+
+  def horizontal_tiles
+    @horizontal_tiles ||= (width.to_f / tile_width).ceil
+  end
+
+  def vertical_tiles
+    @vertical_tiles ||= (height.to_f / tile_height).ceil
+  end
+
+  def add_tile(result, i, j)
+    tile_x = i * tile_width
+    tile_y = j * tile_height
+    result[[tile_x, tile_y]] = tile_fits?(tile_x, tile_y) ? 'CROP' : 'FULL'
+  end
+
+  def tile_fits?(tile_x, tile_y)
+    tile_x + tile_width > width || tile_y + tile_height > height
+  end
+end
+
+layout =  PrintLayout.new(20, 30, 50, 0.5).build
+pp layout
+        </code>
+      </pre>
+    </div>
+  </body>
+</html>
