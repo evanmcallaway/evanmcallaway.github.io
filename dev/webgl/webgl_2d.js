@@ -1,6 +1,6 @@
 class WebGL2D {
-  async getShader(type) {
-    return fetch(`${type}_shader.glsl`).then(file => {
+  async getShader(path, type) {
+    return fetch(`${path}${type}_shader.glsl`).then(file => {
       return file.text().then(content => {
         var shader
 
@@ -25,8 +25,8 @@ class WebGL2D {
   }
 
   async createProgram() {
-    var vertShaderObj = await this.getShader('vertex')
-    var fragShaderObj = await this.getShader('fragment')
+    var vertShaderObj = await this.getShader('../', 'vertex')
+    var fragShaderObj = await this.getShader('', 'fragment')
     this.program = this.gl.createProgram()
 
     this.gl.attachShader(this.program, vertShaderObj)
