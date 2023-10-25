@@ -33,8 +33,7 @@
         <img src="lady_channel.jpg"></img>
       </div>
 
-      <pre>
-        <code>
+      <pre><code>
 require 'vips'
 
 def build_solid_color(image, color)
@@ -46,8 +45,7 @@ wizard_image = Vips::Image.new_from_file('wizard_cropped.jpg')
 
 build_solid_color(background, [200, 200, 255]).bandjoin(wizard_image.extract_band(0).invert).write_to_file('wizard_channel.jpg')
 build_solid_color(background, [100, 100, 0]).bandjoin(lady_image.extract_band(0).invert).write_to_file('lady_channel.jpg')
-        </code>
-      </pre>
+      </code></pre>
 
       <p>Once we've got our channels assembled, we build a solid white background and overlay our images on top of it.
 
@@ -58,8 +56,7 @@ build_solid_color(background, [100, 100, 0]).bandjoin(lady_image.extract_band(0)
         <img src="lady_background.jpg"></img>
       </div>
 
-      <pre>
-        <code>
+      <pre><code>
 require 'vips'
 
 def build_solid_color(image, color)
@@ -76,8 +73,7 @@ background = build_solid_color(lady_image, [255, 255, 255])
 
 background.composite([wizard_channel], :over, compositing_space: :scrgb).flatten.write_to_file('wizard_background.jpg')
 background.composite([wizard_channel], :over, compositing_space: :scrgb).flatten.write_to_file('lady_background.jpg')
-        </code>
-      </pre>
+      </code></pre>
 
       <p>...and finally, let's overlay them on each other.</p>
 
@@ -87,8 +83,7 @@ background.composite([wizard_channel], :over, compositing_space: :scrgb).flatten
 
       <p>Notice how the resulting image features color blending between the two images.</p>
 
-      <pre>
-        <code>
+      <pre><code>
 require 'vips'
 
 def build_solid_color(image, color)
@@ -104,8 +99,7 @@ lady_channel   = build_solid_color(background, [100, 100, 0]).bandjoin(lady_imag
 background = build_solid_color(lady_image, [255, 255, 255])
 
 background.composite([wizard_channel, lady_channel], :over, compositing_space: :scrgb).flatten.write_to_file('blended.jpg')
-        </code>
-      </pre>
+      </code></pre>
 
       <p><code>:over</code> blend mode is used to simulate overlapping semi-transparent sheets on a projector.</p>
 

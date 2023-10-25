@@ -15,10 +15,26 @@
     <script src="color.js"></script>
   </head>
 
+  <style>
+    #color-pickers input {
+      margin-bottom: 10px;
+    }
+  </style>
+
   <script>
     function startCanvases() {
-      webGLStart('canvas1', '/dev/images/controller.png', [0xCCD5D9])
-      webGLStart('canvas2', '/dev/images/controller.png', [0x336DB7, 0x41B25C, 0xDE322A, 0xECBB0E])
+      const colors = ['#CCD5D9', '#35434E', '#B0B7BC', '#336DB7', '#41B25C', '#DE322A', '#ECBB0E']
+      const colorPickerContainer = document.getElementById('color-pickers')
+
+      colors.forEach(color => {
+        var input = document.createElement("input")
+        input.type = 'color'
+        input.value = color
+        input.setAttribute('original', color)
+        colorPickerContainer.appendChild(input)
+      })
+
+      webGLStart('canvas1', 'color-pickers', '/dev/images/controller.png')
     }
   </script>
 
@@ -27,14 +43,14 @@
       <h3>Replacing Colors with WebGL</h3>
 
       <p>
-        This is a dumb prototype of how you can manipulate specific colors in an image using a WebGL fragment shader.  I'm replacing a specific list of colors on each game controller with some arbitrary colors that I'm modulating each frame, but there's no reason you couldn't swap to more specific colors, like the output of a color picker tool.
+        This is a prototype demonstrating how to manipulate specific colors in an image using a WebGL fragment shader.  Click on the color chips to the right of the game controller to replace a color.
       </p>
 
-      <p>On the left we're replacing a single color.  One the right we're replacing all four button colors.</p>
-
-      <div class="center-content">
-        <canvas id="canvas1" width="320" height="320"></canvas>
-        <canvas id="canvas2" width="320" height="320"></canvas>
+      <div class="row">
+        <div class="col s11 center-content">
+          <canvas id="canvas1" width="320" height="320"></canvas>
+        </div>
+        <div class="col s1 center-content" id="color-pickers"></div>
       </div>
 
       <div>
@@ -49,8 +65,7 @@
 
       <p>We need to rescale our colors from 0-255 per dimension to 0-1.  There's a lot of ways to do this but if you already have your color as a number, you can do it quite simply by using a binary AND to grab the digits for each color and then scaling them proportionally.  We've added a 1.0 to the alpha channel to keep our color vectors the same size as texture2D's output.</p>
 
-      <pre>
-        <code>
+      <pre><code>
 function colorToVector(color) {
   return [
     (color & 0xFF0000) / 0xFF0000,
@@ -59,8 +74,7 @@ function colorToVector(color) {
     1.0
   ]
 }
-        </code>
-      </pre>
+      </code></pre>
 
       <p>Keep in mind that WebGL expects you to pass arrays of vectors as one large flat array of values, so don't nest your values in a parent array if you're working with multiple colors.</p>
 
@@ -68,8 +82,7 @@ function colorToVector(color) {
 
       <p>Swapping colors is really just a matter of looking for a close enough match and using your new color if you find one.</p>
 
-      <pre>
-        <code>
+      <pre><code>
 #define MAX_COLORS 24
 #define COLOR_TOLERANCE 0.000001
 
@@ -97,8 +110,7 @@ vec4 colorSwap(vec4 oldColor[MAX_COLORS], vec4 newColor[MAX_COLORS], vec4 imageC
 void main(void){
   gl_FragColor = colorSwap(u_original_colors, u_new_colors, texture2D(sampler0, vTex));
 }
-        </code>
-      </pre>
+      </code></pre>
 
       <p>There's no reason that you need to swap to one one specific other color as well.  You could use this same technique to replace a certain color with the colors from another texture in the style of a television studio green screen.</p>
 

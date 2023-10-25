@@ -36,10 +36,12 @@ async function createProgram(gl) {
   return program
 }
 
-async function webGLStart(target, src, targetColors) {
+async function webGLStart(target, colorPickerContainer, src) {
   const FPS = 30
 
   var img, tex, vloc, tloc, vertexBuff, texBuff, newColorsLoc, originalColorsLoc, colorsCountLoc
+
+  var colorPickers
 
   var canvas = document.getElementById(target)
   var gl = canvas.getContext('experimental-webgl')
@@ -94,47 +96,43 @@ async function webGLStart(target, src, targetColors) {
 
   function setup() {
     setupImage(img)
+
+    colorPickers = Array.from(document.getElementById(colorPickerContainer).children)
+    colorPickers.forEach(colorPicker => { colorPicker.addEventListener('input', render) })
+
     render()
   }
 
   function colorToVector(color) {
+    if (color === undefined || color === null || color === NaN)
+      return [-1, -1, -1, 1]
+
+    const numeric_color = Number(color.replace('#', '0x'))
+
     return [
-      (color & 0xFF0000) / 0xFF0000,
-      (color & 0xFF00)   / 0xFF00,
-      (color & 0xFF)     / 0xFF,
+      (numeric_color & 0xFF0000) / 0xFF0000,
+      (numeric_color & 0xFF00)   / 0xFF00,
+      (numeric_color & 0xFF)     / 0xFF,
       1.0
     ]
   }
 
-  function newColor(index, delta) {
-    var color = [0.0, 0.0, 0.0, 1.0]
-    color[0] = delta
-    if (index % 2 == 0) color[1] = delta
-    if (index % 3 == 0) color[2] = delta
-    return color
-  }
-
   function render() {
-    if (colorDelta > 1.0 || colorDelta < 0.0)
-      colorVelocity *= -1
-    colorDelta = colorDelta + colorVelocity
-
-    gl.uniform1i(colorsCountLoc, targetColors.length)
+    gl.uniform1i(colorsCountLoc, colorPickers.length)
 
     var glOriginalColors = []
-    targetColors.forEach((color) => glOriginalColors = glOriginalColors.concat(colorToVector(color)))
+    var glNewColors = []
+
+
+    colorPickers.forEach(colorPicker => {
+      glOriginalColors = glOriginalColors.concat(colorToVector(colorPicker.getAttribute('original')))
+      glNewColors = glNewColors.concat(colorToVector(colorPicker.value))
+    })
+
+    gl.uniform4fv(newColorsLoc, glNewColors)
     gl.uniform4fv(originalColorsLoc, glOriginalColors)
 
-    var glNewColors = []
-    var colorIndex = 0
-    targetColors.forEach((color) => glNewColors = glNewColors.concat(newColor(colorIndex++, colorDelta)))
-    gl.uniform4fv(newColorsLoc, glNewColors)
-
     gl.drawArrays(gl.TRIANGLE_FAN, 0, 4)
-
-    setTimeout(() => {
-      requestAnimationFrame(render)
-    }, 1000 / FPS)
   }
 
   img.onload = setup

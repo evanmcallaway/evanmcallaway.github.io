@@ -18,7 +18,7 @@
     <div class="container">
       <h3>Faster Color Replacement with RMagick</h3>
 
-      <p>So...you've got an image and you would like to replace one or more specific colors in the image with other specific colors.  You also want it done reasonably quickly.</p>
+      <p>Let's say you would like to replace one or more specific colors in an image with other specific colors.</p>
 
       <div class="center-content">
         <img src="/dev/images/controller.png"></img>
@@ -28,11 +28,10 @@
       <h4>Replacing Colors the Slow Way</h4>
 
       <p>
-        Let's look at how to replace colors using RMagick's <a href="https://rmagick.github.io/image2.html#opaque">opaque</a> operation, which is used to replace one color in an image with another color.
+        A niave approach is to use RMagick's <a href="https://rmagick.github.io/image2.html#opaque">opaque</a> operation, which is used to replace one color in an image with another color.
       </p>
 
-      <pre>
-        <code>
+      <pre><code>
 require 'rmagick'
 
 img = Magick::Image.read('controller.png').first
@@ -48,22 +47,20 @@ colors.each_with_index do |color, i|
 end
 
 img.write('out.png')
-        </code>
-      </pre>
+      </code></pre>
 
       <p>There are a number of issues with this approach.</p>
       <ul class="browser-default">
-        <li>It's slow.  We're asking ImageMagick to scan the whole image for each color we would like to swap.  Performance drops as the input image or color list grows.  Running our sample code against a 3013x2852 version of our game controller image takes around 4.1 seconds.</li>
+        <li>It's slow.  We're asking ImageMagick to scan the whole image for each color we would like to swap.  Performance drops as the input image or color list grows.  Running our sample code against a 3013x2852 version of our game controller image takes around 4.1 seconds.  File I/O takes around 0.5 seconds so we're still looking at around 3.5 seconds of processing time.</li>
         <li>There's no way of diffentiating pixels that have changed from ones that haven't so it doesn't work if one of your new colors is already present in the image.  You can work around this limitation by swapping conflicting colors to other colors, but this will take additional time.</li>
       </ul>
 
-      <p>Just say "no" to this approach unless you have a very specific usecase.</p>
+      <p>I would not recommend this approach unless you have a very specific usecase.</p>
 
       <h4>Replacing Colors the Fast Way with Palette Images</h4>
       <p>Provided the image you would like to manipulate has a relatively limited number of colors (less than 256 is the common), you should consider performing your recoloring operations with palette images.  Instead of encoding each color in each pixel, the colors are stored in a lookup table that is referenced by individual pixels.  We can recolor our image simply by manipulting that lookup table!</p>
 
-      <pre>
-        <code>
+      <pre><code>
 require 'rmagick'
 require 'json'
 
@@ -73,7 +70,7 @@ img = Magick::Image.read('controller.png').first
 img.class_type = Magick::PseudoClass
 
 # Extract the image's palette.  RMagick doesn't expose this on their Image class for reasons.
-# We can work around that by pulling a 1x1 pixel version of our image and dumping its data.
+# We can work around this limitation by pulling a 1x1 pixel version of our image and dumping its data.
 dummy = img.excerpt(0, 0, 1, 1)
 dummy.format = 'JSON'
 colors = JSON.parse(dummy.to_blob).first.dig('image', 'colormap').map do |color|
@@ -89,10 +86,9 @@ new_colors.each_with_index do |new_color, i|
 end
 
 img.write('out.png')
-        </code>
-      </pre>
+      </code></pre>
 
-      <p>Running the against the same test image as the earlier script, this operation takes around 1.6 seconds to complete.  If you have the opportunity to pre-process and cache the palette version of your input image, the entire operation including reading and writing the file only takes around 0.45 seconds, which is the roughly the same amount of time required to read the file in and write it back to disk without manipulation.</p>
+      <p>Running this against the same test image as the earlier script, this operation takes around 1.6 seconds to complete.  If you have the opportunity to pre-process and cache the palette version of your input image, the entire operation including reading and writing the file only takes around 0.5 seconds, which is the roughly the same amount of time required to read the file in and write it back to disk without manipulation.  This means we have nearly free recoloring once you have the image in palette format.</p>
 
       <p>As an added bonus, palette images are smaller on disk -- they should only require 8 bits per pixel instead of 8 bits per channel per pixel.  Your mileage will vary depending on how well compression works on your images.</p>
     </div>

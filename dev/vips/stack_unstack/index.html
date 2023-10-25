@@ -48,16 +48,14 @@
         <div>It may seem a little unintuitive, but lighter colors are higher values, so the red dress is mostly white in the R channel an darker in the other channels.</div>
       </div>
 
-      <pre>
-        <code>
+      <pre><code>
 require 'vips'
 
 source_file = Vips::Image.new_from_file('lady.jpg')
 source_file.bandsplit.each_with_index do |channel, index|
   channel.write_to_file("lady_#{'RGB'[index]}.jpg")
 end
-        </code>
-      </pre>
+      </code></pre>
 
       <h5>Recomposition</h5>
 
@@ -67,8 +65,7 @@ end
         <img src="/dev/images/lady.jpg"></img><img src="lady_remixed.jpg"></img><img src="lady_remixed2.jpg"></img>
       </div>
 
-      <pre>
-        <code>
+      <pre><code>
 require 'vips'
 
 lady_r = Vips::Image.new_from_file('lady_R.jpg')
@@ -78,8 +75,7 @@ lady_b = Vips::Image.new_from_file('lady_B.jpg')
 lady_r.bandjoin([lady_g, lady_b]).copy(interpretation: :srgb).write_to_file('lady_rebuilt.jpg')
 lady_g.bandjoin([lady_r, lady_b]).copy(interpretation: :srgb).write_to_file('lady_remixed.jpg')
 lady_g.bandjoin([lady_b, lady_r]).copy(interpretation: :srgb).write_to_file('lady_remixed2.jpg')
-        </code>
-      </pre>
+      </code></pre>
 
       <h4>Extra Color Channels</h4>
 
@@ -97,14 +93,11 @@ lady_g.bandjoin([lady_b, lady_r]).copy(interpretation: :srgb).write_to_file('lad
         <img src="/dev/images/wizard_cropped.jpg"></img>
       </div>
 
-      <pre>
-        <code>convert wizard: -resize 327x300^ -crop 327x300+0+25 wizard.jpg</code>
-      </pre>
+      <pre><code>convert wizard: -resize 327x300^ -crop 327x300+0+25 wizard.jpg</code></pre>
 
       <p>Now let's hide our wizard behind the image of the lady.</p>
 
-      <pre>
-        <code>
+      <pre><code>
 require 'vips'
 
 lady_image = Vips::Image.new_from_file('lady.jpg')
@@ -113,8 +106,7 @@ wizard_image = Vips::Image.new_from_file('wizard_cropped.jpg')
 lady_image = lady_image.bandjoin_const(255) # Add an alpha channel
 
 lady_image.bandjoin(wizard_image).write_to_file('lady_secret_wizard.tiff')
-        </code>
-      </pre>
+      </code></pre>
 
       <div class="center-content">
         <img src="gimp.png"></img>
@@ -126,8 +118,7 @@ lady_image.bandjoin(wizard_image).write_to_file('lady_secret_wizard.tiff')
 
       <p>Now let's recover our secret wizard image.</p>
 
-      <pre>
-        <code>
+      <pre><code>
 require 'vips'
 
 lady_image = Vips::Image.new_from_file('lady_secret_wizard.tiff')
@@ -135,8 +126,7 @@ lady_image = Vips::Image.new_from_file('lady_secret_wizard.tiff')
 # Starting at the 5th band (0 indexed), extract all but the first 4 bands.
 wizard_image = lady_image.extract_band(4, n: lady_image.bands - 4)
 wizard_image.write_to_file('revealed.jpg')
-        </code>
-      </pre>
+      </code></pre>
     </div>
   </body>
 </html>

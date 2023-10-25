@@ -31,8 +31,7 @@
 
       <p>For talking purposes, something like this:</p>
 
-      <pre>
-        <code>
+      <pre><code>
 {
   text: 'Lorem Ipsum',      # The text to write
   width: 480,               # The width of our text box
@@ -48,8 +47,7 @@
   font_style:  'Normal',    # Font style
   line_spacing: 0           # Spacing adjustment between text lines
 }
-        </code>
-      </pre>
+      </code></pre>
 
       <p>For text box sizing it's often convenient to use the full image dimensions and let alignment handle the rest if you're adding header or footer text.</p>
 
@@ -59,8 +57,7 @@
 
       <p>I've put together a little helper to wrangle the text formatting and add the text to our image.  Typically I prefer to wrap RMagick in a helper class with chainable methods, but we'll keep this simple and just make a little helper.</p>
 
-      <pre>
-        <code>
+      <pre><code>
 require 'rmagick'
 
 class TextWriter
@@ -104,8 +101,7 @@ class TextWriter
     end
   end
 end
-        </code>
-      </pre>
+      </code></pre>
 
       <h4>A Simple Example</h4>
 
@@ -115,8 +111,7 @@ end
         <img src="cheezburger_wizard_lame.jpg"></img>
       </div>
 
-      <pre>
-        <code>
+      <pre><code>
 require './text_writer'
 
 format = { width: 480, height: 640, x: 0, y: 20 }
@@ -127,8 +122,7 @@ TextWriter.write(img, [
   { text: 'CHEEZBURGER', alignment: 'south' }.merge(format)
 ])
 img.write('cheezburger_wizard.jpg')
-        </code>
-      </pre>
+      </code></pre>
 
       <h4>Meme Text</h4>
 
@@ -138,8 +132,7 @@ img.write('cheezburger_wizard.jpg')
         <img src="cheezburger_wizard.jpg"></img>
       </div>
 
-      <pre>
-        <code>
+      <pre><code>
 require './text_writer'
 
 format = {
@@ -159,8 +152,7 @@ TextWriter.write(img, [
   { text: 'CHEEZBURGER', alignment: 'south' }.merge(format)
 ])
 img.write('cheezburger_wizard.jpg')
-        </code>
-      </pre>
+      </code></pre>
     </div>
   </body>
 </html>

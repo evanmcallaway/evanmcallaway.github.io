@@ -32,7 +32,7 @@
       <h3>HSL Modulation with WebGL</h3>
 
       <p>
-        For these little prototypes I'm rendering couple of colorful images with WebGL and then I'm using a fragment shader to manipluate their color.  For this simple exercise I'm going to use HSL to perform the color manipulations because the implementation is extremely simple, but there's no reason you couldn't apply the same techniques to a more modern color modulation like HSB/HSV or LCH.
+        For these prototypes I'm rendering couple of colorful images with WebGL and then I'm using a fragment shader to manipluate their color.  I'm going to use HSL to perform the color manipulations because the implementation is extremely simple, but there's no reason you couldn't apply the same techniques to a more modern color modulation like HSB/HSV or LCH.
       </p>
 
       <h4>Hue</h4>
@@ -53,17 +53,34 @@
         <canvas id="canvas6" width="320" height="320"></canvas>
       </div>
 
-      <div>
-        HSL modulation done simply by converting our RGB color into HSL space, applying a small transform to the HSL color values, and then converting the color back to RGB space for display.
+      <p>HSL modulation done simply by converting our RGB color into HSL space, applying a small transform to the HSL color values, and then converting the color back to RGB space for display.</p>
 
-        <p>A couple of key notes on this:</p>
-        <ul class="browser-default">
-          <li>8-bit RGB is typically represented by a color cube with dimensions from 0-255.  Because vectors, WebGL uses a color cube with dimensions from 0-1, so we have to scale our color math proportionally.</li>
-          <li>HSL is a cylindrical colorspace, with hue representing the angle along a circular cross-section, saturation is distance from the middle of a circular cross-section, and lightness is distance along the height of the cylinder.</li>
-          <li>We can treat saturation and lightness as linear values and apply proportional transformations to manipulate them.  To avoid unpleasant jumps in our color manipulation animation, we'll reverse direction on our transformations.</li>
-          <li>Hue manipulation is handled by increasing the "angle" of the color on the cylinder.  Note that because hue is traveling around a circle, we never need to reverse direction for a smooth animation -- once we've travelled fully around the circle we can just keep going.</li>
-        </ul>
+      <p>8-bit RGB is typically represented by a color cube with dimensions from 0-255.  WebGL uses a color cube with dimensions from 0-1, so we have to scale our color math proportionally.</p>
+
+      <p>HSL is a cylindrical colorspace, with hue representing the angle along a circular cross-section, saturation is distance from the middle of a circular cross-section, and lightness is distance along the height of the cylinder.</p>
+
+      <div class="center-content">
+        <img src="rgb_cube.png" height="295">
+        <img src="hsl_cylinder.png" height="295">
       </div>
+
+      <p>We can treat saturation and lightness as linear values and apply proportional transformations to manipulate them.</p>
+
+      <p>Hue manipulation is handled by linearly increasing the "angle" of the color on the cylinder.</p>
+
+      <pre><code>
+vec4 modulate(vec4 imageColor) {
+  vec3 hsl = rgbToHsl(imageColor.rgb);
+  vec3 rgb = hslToRgb(vec3(hsl.x + hsl_shift.x, hsl.y * hsl_shift.y, hsl.z * hsl_shift.z));
+  return vec4(rgb, imageColor.a);
+}
+
+void main(void){
+  gl_FragColor = modulate(texture2D(sampler0, vTex));
+}
+      </code></pre>
+
+      <p>To avoid unpleasant jumps in our color manipulation animation, we'll reverse direction for our saturation and lightness transformations when we approach acceptable minimum and maximum values.  Hue is traveling around a circle so we never need to reverse direction for a smooth animation -- once we've travelled fully around the circle we can just keep going.  Just apply a modulus of either 1.0 if you're already in GL math space, 255 if you're working with a 0-255 slider, or 360 if you're thinking in angles.</p>
 
       <p>
         You'll note that I'm not showcasing darkening with lightness modulation on this page.  HSL has some pretty gnarly edge cases that come out of darker colors being more saturated, so near-white dithered colors start to look a bit deep fried in some cases.  If you really need to modulate an image to be darker, I highly recommend using HSB/HSV instead.
@@ -78,7 +95,6 @@
         <li>Convert hsl.js into a module.</li>
         <li>Separate WebGL boilerplate from the meat of the project.</li>
         <li>Expand explanation text.</li>
-        <li>Add colorspace diagrams for easier visualization.</li>
       </ul>
     </div>
   </body>

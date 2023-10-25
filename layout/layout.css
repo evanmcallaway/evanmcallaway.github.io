@@ -28,6 +28,8 @@ pre {
     white-space: -pre-wrap;      /* Opera 4-6 */
     white-space: -o-pre-wrap;    /* Opera 7 */
     word-wrap: break-word;       /* Internet Explorer 5.5+ */
+
+    margin: 0px !important;
 }
 
 
@@ -35,7 +37,7 @@ pre code {
     background-color: #eee;
     border: 1px solid #999;
     display: block;
-    padding: 20px;
+    padding: 0px 20px;
 }
 
 .page-footer {

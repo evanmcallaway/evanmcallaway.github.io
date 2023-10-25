@@ -1,7 +1,7 @@
 precision highp float;
 varying vec2 vTex;
 uniform sampler2D sampler0;
-uniform vec3      u_hsl;
+uniform vec3      hsl_shift;
 
 // Converts (1.0, 1.0, 1.0) scale RGB values to (1.0, 1.0, 1.0) scale HSL
 vec3 rgbToHsl(vec3 rgb){
@@ -73,8 +73,8 @@ vec3 hslToRgb(vec3 hsl) {
 
 vec4 modulate(vec4 imageColor) {
   vec3 hsl = rgbToHsl(imageColor.rgb);
-  vec3 rgb = hslToRgb(vec3(hsl.x + u_hsl.x, hsl.y * u_hsl.y, hsl.z * u_hsl.z));
-  return vec4(rgb, 1.0);
+  vec3 rgb = hslToRgb(vec3(hsl.x + hsl_shift.x, hsl.y * hsl_shift.y, hsl.z * hsl_shift.z));
+  return vec4(rgb, imageColor.a);
 }
 
 void main(void){

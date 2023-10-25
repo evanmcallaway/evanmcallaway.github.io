@@ -68,7 +68,7 @@ async function webGLStart(target, src, modulate) {
   vloc = gl.getAttribLocation(program, 'aVertex')
   tloc = gl.getAttribLocation(program, 'aUV')
   uLoc = gl.getUniformLocation(program, 'pos')
-  var hslLocation = gl.getUniformLocation(program, "u_hsl")
+  var hslLocation = gl.getUniformLocation(program, "hsl_shift")
 
   var setupImage = function(imgobj) {
     tex = gl.createTexture()

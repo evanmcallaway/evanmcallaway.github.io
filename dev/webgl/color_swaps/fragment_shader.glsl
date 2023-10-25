@@ -1,5 +1,5 @@
 #define MAX_COLORS 24
-#define COLOR_TOLERANCE 0.000001
+#define COLOR_TOLERANCE 0.001
 
 precision highp float;
 varying vec2 vTex;
