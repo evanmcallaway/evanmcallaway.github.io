@@ -18,9 +18,18 @@ body::after {
   height: 50px; /* Set same as footer's height */
 }
 
+.left-content {
+    text-align: left;
+}
+
 .center-content {
     text-align: center;
 }
+
+.right-content {
+    text-align: right;
+}
+
 
 pre {
     white-space: pre-wrap;       /* css-3 */

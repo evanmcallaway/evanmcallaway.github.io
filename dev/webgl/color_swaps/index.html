@@ -16,6 +16,11 @@
   </head>
 
   <style>
+    #color-pickers {
+      display: flex;
+      flex-direction: column;
+    }
+
     #color-pickers input {
       margin-bottom: 10px;
     }
@@ -46,11 +51,15 @@
         This is a prototype demonstrating how to manipulate specific colors in an image using a WebGL fragment shader.  Click on the color chips to the right of the game controller to replace a color.
       </p>
 
+      <i><b>Note:</b> for simplicity I'm using using basic HTML color input to pick colors in this demo.  It should work for most browsers, but the actual color picker implementation is left up to the browser.  I've found it works best with the desktop version of Chrome.</i>
+
       <div class="row">
-        <div class="col s11 center-content">
+        <div class="col s6 right-content">
           <canvas id="canvas1" width="320" height="320"></canvas>
         </div>
-        <div class="col s1 center-content" id="color-pickers"></div>
+        <div class="col s6 left-content" id="color-pickers">
+          <p>Click a color chip</p>
+        </div>
       </div>
 
       <div>
@@ -66,14 +75,12 @@
       <p>We need to rescale our colors from 0-255 per dimension to 0-1.  There's a lot of ways to do this but if you already have your color as a number, you can do it quite simply by using a binary AND to grab the digits for each color and then scaling them proportionally.  We've added a 1.0 to the alpha channel to keep our color vectors the same size as texture2D's output.</p>
 
       <pre><code>
-function colorToVector(color) {
   return [
     (color & 0xFF0000) / 0xFF0000,
     (color & 0xFF00)   / 0xFF00,
     (color & 0xFF)     / 0xFF,
     1.0
   ]
-}
       </code></pre>
 
       <p>Keep in mind that WebGL expects you to pass arrays of vectors as one large flat array of values, so don't nest your values in a parent array if you're working with multiple colors.</p>
@@ -84,7 +91,7 @@ function colorToVector(color) {
 
       <pre><code>
 #define MAX_COLORS 24
-#define COLOR_TOLERANCE 0.000001
+#define COLOR_TOLERANCE 0.001
 
 precision highp float;
 varying vec2 vTex;
@@ -123,10 +130,8 @@ void main(void){
       <p>TODOs:</p>
       <ul class="browser-default">
         <li>Add demonstraction of green screen effect.</li>
-        <li>Generate better "new" colors or add color picker to live demo.</li>
-        <li>Convert colors.js into a module.</li>
+        <li>colors.js is very prototype-ish and should be turned into a class or an ES6 module.</li>
         <li>Separate WebGL boilerplate from the meat of the project.</li>
-        <li>Expand explanation text.</li>
       </ul>
     </div>
   </body>
