@@ -30,6 +30,10 @@ body::after {
     text-align: right;
 }
 
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
 
 pre {
     white-space: pre-wrap;       /* css-3 */

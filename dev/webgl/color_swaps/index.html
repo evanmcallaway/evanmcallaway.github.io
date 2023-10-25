@@ -16,11 +16,6 @@
   </head>
 
   <style>
-    #color-pickers {
-      display: flex;
-      flex-direction: column;
-    }
-
     #color-pickers input {
       margin-bottom: 12px;
     }
@@ -28,7 +23,7 @@
 
   <script>
     function startCanvases() {
-      const colors = ['#CCD5D9', '#35434E', '#B0B7BC', '#336DB7', '#41B25C', '#DE322A', '#ECBB0E']
+      const colors = ['#CCD5D9', '#35434E', '#B0B7BC', '#336DB7', '#41B25C', '#DE322A', '#ECBB0E', '#FFFFFF']
       const colorPickerContainer = document.getElementById('color-pickers')
 
       colors.forEach(color => {
@@ -53,11 +48,11 @@
 
       <i><b>Note:</b> for simplicity I'm using using basic HTML color input to pick colors in this demo.  It should work for most browsers, but the actual color picker implementation is left up to the browser.  I've found it works best with the desktop version of Chrome.</i>
 
-      <div class="row">
+      <div class="row" style="margin-top: 20px">
         <div class="col s6 right-content">
           <canvas id="canvas1" width="320" height="320"></canvas>
         </div>
-        <div class="col s6 left-content" id="color-pickers">
+        <div class="col s6 left-content flex-column" id="color-pickers">
           <p>Click a color chip</p>
         </div>
       </div>
@@ -71,12 +66,12 @@
       <p>We need to rescale our colors from 0-255 per dimension to 0-1.  There's a lot of ways to do this but if you already have your color as a number, you can do it quite simply by using a binary AND to grab the digits for each color and then scaling them proportionally.  We've added a 1.0 to the alpha channel to keep our color vectors the same size as texture2D's output.</p>
 
       <pre><code>
-  return [
-    (color & 0xFF0000) / 0xFF0000,
-    (color & 0xFF00)   / 0xFF00,
-    (color & 0xFF)     / 0xFF,
-    1.0
-  ]
+return [
+  (color & 0xFF0000) / 0xFF0000,
+  (color & 0xFF00)   / 0xFF00,
+  (color & 0xFF)     / 0xFF,
+  1.0
+]
       </code></pre>
 
       <p>Keep in mind that WebGL expects you to pass arrays of vectors as one large flat array of values, so don't nest your values in a parent array if you're working with multiple colors.</p>
