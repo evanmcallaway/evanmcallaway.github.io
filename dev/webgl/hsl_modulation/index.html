@@ -11,19 +11,20 @@
 
     <link rel="preload" as="script" href="/layout/load.js">
     <script src="/layout/load.js" defer></script>
-    <script src="hsl.js"></script>
+    <script src="../webgl_2d.js"></script>
+    <script src="hsl_canvas.js"></script>
   </head>
 
   <script>
     function startCanvases() {
-      webGLStart('canvas1', '/dev/webgl/hsl_modulation/colorful.jpg', { hue: true })
-      webGLStart('canvas2', '/dev/webgl/hsl_modulation/crayons.jpg', { hue: true })
+      new HslCanvas('canvas1', '/dev/webgl/hsl_modulation/colorful.jpg', { hue: true })
+      new HslCanvas('canvas2', '/dev/webgl/hsl_modulation/crayons.jpg', { hue: true })
 
-      webGLStart('canvas3', '/dev/webgl/hsl_modulation/colorful.jpg', { saturation: true })
-      webGLStart('canvas4', '/dev/webgl/hsl_modulation/crayons.jpg', { saturation: true })
+      new HslCanvas('canvas3', '/dev/webgl/hsl_modulation/colorful.jpg', { saturation: true })
+      new HslCanvas('canvas4', '/dev/webgl/hsl_modulation/crayons.jpg', { saturation: true })
 
-      webGLStart('canvas5', '/dev/webgl/hsl_modulation/colorful.jpg', { lightness: true })
-      webGLStart('canvas6', '/dev/webgl/hsl_modulation/crayons.jpg', { lightness: true })
+      new HslCanvas('canvas5', '/dev/webgl/hsl_modulation/colorful.jpg', { lightness: true })
+      new HslCanvas('canvas6', '/dev/webgl/hsl_modulation/crayons.jpg', { lightness: true })
     }
   </script>
 
@@ -89,13 +90,6 @@ void main(void){
       <p>
         The source for his page is available <a href="https://github.com/evanmcallaway/evanmcallaway.github.io/tree/master/dev/webgl/hsl_modulation">here</a>.
       </p>
-
-      <p>TODOs:</p>
-      <ul class="browser-default">
-        <li>Convert hsl.js into a module.</li>
-        <li>Separate WebGL boilerplate from the meat of the project.</li>
-        <li>Expand explanation text.</li>
-      </ul>
     </div>
   </body>
 </html>

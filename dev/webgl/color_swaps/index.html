@@ -12,7 +12,8 @@
     <link rel="preload" as="script" href="/layout/load.js">
     <script src="/layout/load.js" defer></script>
 
-    <script src="color.js"></script>
+    <script src="../webgl_2d.js"></script>
+    <script src="color_swapper.js"></script>
   </head>
 
   <style>
@@ -22,7 +23,7 @@
   </style>
 
   <script>
-    function startCanvases() {
+    function initCanvas() {
       const colors = ['#CCD5D9', '#35434E', '#B0B7BC', '#336DB7', '#41B25C', '#DE322A', '#ECBB0E', '#FFFFFF']
       const colorPickerContainer = document.getElementById('color-pickers')
 
@@ -34,11 +35,11 @@
         colorPickerContainer.appendChild(input)
       })
 
-      webGLStart('canvas1', 'color-pickers', '/dev/images/controller.png')
+      window.colorSwapper = new ColorSwapper('canvas1', 'color-pickers', '/dev/images/controller.png')
     }
   </script>
 
-  <body style="opacity: 0;" onload="startCanvases()">
+  <body style="opacity: 0;" onload="initCanvas()">
     <div class="container">
       <h3>Replacing Colors with WebGL</h3>
 
@@ -80,7 +81,7 @@ return [
 
       <p>Swapping colors is really just a matter of looking for a close enough match and using your new color if you find one.</p>
 
-      <p>Notice that we use the dot product of our vector's difference to find our distance squared.  Square roots are expensive operations and in this case we don't need a true distance to estimate that we have a color match.</p>
+      <p>Notice that we use the dot product of our vector's difference to find our distance squared.  Square roots are expensive operations and in this case we don't necessarily need the true distance to estimate that we have a color match.</p>
 
       <pre><code>
 #define MAX_COLORS 24
