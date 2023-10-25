@@ -22,7 +22,7 @@
     }
 
     #color-pickers input {
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
   </style>
 
@@ -62,13 +62,9 @@
         </div>
       </div>
 
-      <div>
-        <p>A couple of key things to keep in mind:</p>
-        <ul class="browser-default">
-          <li>8-bit RGB is typically represented by a color cube with dimensions from 0-255.  Because vectors, WebGL uses a color cube with dimensions from 0-1, so we have to scale our color math proportionally.</li>
-          <li>As always, keep in mind that you cannot perform equality operations on floating point values, like the ones in our vectors.  Instead, check for "close enough" matches based on your application's required tolerance.</li>
-        </ul>
-      </div>
+      <p>8-bit RGB is typically represented by a color cube with dimensions from 0-255.  Because vectors, WebGL uses a color cube with dimensions from 0-1, so we have to scale our color math proportionally.</p>
+
+      <p>As always, keep in mind that you cannot perform equality operations on floating point values, like the ones in our vectors.  Instead, check for "close enough" matches based on your application's required tolerance.  Depending on your usecase, you may find a broad tolerance is useful so that you can match a range of close-ish colors.</p>
 
       <h4>Colors to Vectors</h4>
 
@@ -88,6 +84,8 @@
       <h4>Fragment Shader</h4>
 
       <p>Swapping colors is really just a matter of looking for a close enough match and using your new color if you find one.</p>
+
+      <p>Notice that we use the dot product of our vector's difference to find our distance squared.  Square roots are expensive operations and in this case we don't need a true distance to estimate that we have a color match.</p>
 
       <pre><code>
 #define MAX_COLORS 24
