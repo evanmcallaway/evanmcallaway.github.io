@@ -15,5 +15,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   Promise.all([headerPromise, footerPromise]).then(function() {
     document.body.style.opacity = '1'
+    hljs.highlightAll()
   })
 })
