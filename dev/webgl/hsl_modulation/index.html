@@ -57,20 +57,18 @@
         <canvas id="canvas6" width="320" height="320"></canvas>
       </div>
 
-      <p>HSL modulation done simply by converting our RGB color into HSL space, applying a small transform to the HSL color values, and then converting the color back to RGB space for display.</p>
+      <p>HSL modulation done by converting our RGB color into colors in HSL space, applying a small transformation to the HSL color values, and then converting the color back to RGB space for rendering.  WebGL doesn't natively provide color space transformation opertaions so we'll need to write our own conversions from RGB to HSL and back.</p>
 
       <p>8-bit RGB is typically represented by a color cube with dimensions from 0-255.  WebGL uses a color cube with dimensions from 0-1, so we have to scale our color math proportionally.</p>
 
-      <p>HSL is a cylindrical colorspace, with hue representing the angle along a circular cross-section, saturation is distance from the middle of a circular cross-section, and lightness is distance along the height of the cylinder.</p>
+      <p>HSL is a cylindrical colorspace, where hue is the angle around a circular cross-section, saturation is distance from the middle of a circular cross-section, and lightness is distance along the height of the cylinder.</p>
 
       <div class="center-content">
         <img src="rgb_cube.png" height="295">
         <img src="hsl_cylinder.png" height="295">
       </div>
 
-      <p>We can treat saturation and lightness as linear values and apply proportional transformations to manipulate them.</p>
-
-      <p>Hue manipulation is handled by linearly increasing the "angle" of the color on the cylinder.</p>
+      <p>Saturation and lightness are linear dimensions so they can be manipulated with proportional transformations.  Hue is modified by adding additional distance to travel around the circular cross-section.</p>
 
       <pre><code>
 vec4 modulate(vec4 imageColor) {
@@ -91,7 +89,7 @@ void main(void){
       </p>
 
       <p>
-        The source for his page is available <a href="https://github.com/evanmcallaway/evanmcallaway.github.io/tree/master/dev/webgl/hsl_modulation">here</a>.
+        The source for this page is available <a href="https://github.com/evanmcallaway/evanmcallaway.github.io/tree/master/dev/webgl/hsl_modulation" target="_blank"">here</a>.
       </p>
     </div>
   </body>

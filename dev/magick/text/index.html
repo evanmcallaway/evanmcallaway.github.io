@@ -29,7 +29,7 @@
       <h4>Formatted Text</h4>
 
       <p>
-        Writing text is done via RMagick's <a href="https://rmagick.github.io/draw.html">Magick::Draw</a>.  Let's define a simple format that we can pass around that defines our line format.  Let's do something that's easy to serialize and deserialize.
+        Writing text is done via RMagick's <a href="https://rmagick.github.io/draw.html">Magick::Draw</a>.  Let's define a simple format that we can pass around that defines our line format in a way that's easy to serialize and deserialize.
       </p>
 
       <p>For talking purposes, something like this:</p>
@@ -39,7 +39,7 @@
   text: 'Lorem Ipsum',      # The text to write
   width: 480,               # The width of our text box
   height: 640,              # The height of our text box
-  alignment: 'north'        # Which side of the text box are we writing?
+  alignment: 'north'        # Which side of the text box should the text float toward?
   x: 0,                     # Horizontal offset
   y: 0,                     # Vertical offset
   size: 40,                 # Text size
@@ -129,7 +129,7 @@ img.write('cheezburger_wizard.jpg')
 
       <h4>Meme Text</h4>
 
-      <p>Let's try doing something basic with that to generate some simple text on an image.  This is leaning heavily on our formatting defaults.</p>
+      <p>Finally, let's lean more heavily on our customizable formatting to appeal to the youths.</p>
 
       <div class="center-content">
         <img src="cheezburger_wizard.jpg"></img>

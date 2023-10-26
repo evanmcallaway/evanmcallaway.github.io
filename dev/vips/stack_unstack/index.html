@@ -22,11 +22,11 @@
 
       <h4>Standard Color Channels</h4>
 
-      <p>Let's take a high level look at the normal color channels in an image.  Under most typical situations we think about color as being stored in three or four color channels, the most common being red, green, blue, and optionally an alpha or transparency channel.  A single channel to represent greyscale or a two channel image to represent greyscale with transparency is also reasonably common.</p>
+      <p>Let's take a high-level look at the normal color channels in an image.  Under most typical situations we think about color as being stored in three or four color channels, the most common being red, green, blue, and optionally an alpha or transparency channel.  A single channel to represent greyscale or a two channel image to represent greyscale with transparency is also reasonably common.</p>
 
       <p>In all cases it's useful to always think about channels as independent greyscale images that our rendering application treats as the intensity level of some particular color or attribute.</p>
 
-      <p>The common case scenario of wanting to store RGB, RGBA, or Greyscale are so useful that many file formats bake in directly into their specification.</p>
+      <p>The common case scenario of wanting to store either RGB, RGBA, or Greyscale is so useful that many file formats bake this assumption directly into their specifications.</p>
 
       <p>What's key is that the file format specification provides a contract so that all applications that support a particular format can agree around how to encode and render some raw data into an image.</p>
 
@@ -82,11 +82,11 @@ lady_g.bandjoin([lady_b, lady_r]).copy(interpretation: :srgb).write_to_file('lad
 
       <h4>Extra Color Channels</h4>
 
-      <p>So why should we can about additional color channels?  Some applications, like Photoshop and Gimp, use the first 3-4 channels as a typical RGB/RGBA preview and give you the option of storing individually colored spot channels, where each channel is given a specific color and the channel is used to represent the intensity of that color present in each pixel. It's quite useful for print applications where specific ink colors are applied to each channel.</p>
+      <p>Why should we care about additional color channels?  Some applications, like Photoshop and Gimp, use the first 3-4 channels as a typical RGB/RGBA preview and give you the option of storing individually colored spot channels, where each channel is given a specific color and the channel is used to represent the intensity of that color present in each pixel. It's quite useful for print applications where specific ink colors are applied to each channel.</p>
 
-      <p>A key point here is that this use of extra channels is not specified by any particular standard, it is specific to a particular application's whims.  These additional channels are therefore useful if you own both the encoding and rendering of the files and you have a specific useful where encoding additional per-data pixel is somehow useful.  Provided the pixel dimensions of the images are the same there's absolutely nothing stopping you from hiding a second image in channels 5 through 9 while channels 1-4 encode an image as normal.</p>
+      <p>A key point here is that this use of extra channels is not specified by any particular standard, it is specific to a particular application's whims.  These additional channels are therefore useful if you own both the encoding and rendering of the files and you have a specific usecase where encoding additional per-pixel data is somehow useful.  Provided the pixel dimensions of the images are the same there's absolutely nothing stopping you from hiding a second image in channels 5 through 9 while channels 1-4 encode an image as normal.</p>
 
-      <p>Keep in mind that many image formats do not support non-standard color bands.  TIFF files support over four bands so are a great choice if you need to store this kind of image.  Some applications, like ImageMagick, will throw out your non-standard bands during their read/write flow, so be careful with these images.</p>
+      <p>Keep in mind that many image formats do not support non-standard color channels.  TIFF files support over four channels so are a great choice if you need to store this kind of image.  Some applications, like ImageMagick, will throw out your non-standard channels during their read/write flow, so be careful with these images.</p>
 
       <h5>Stack 'em up</h5>
 
@@ -126,7 +126,7 @@ require 'vips'
 
 lady_image = Vips::Image.new_from_file('lady_secret_wizard.tiff')
 
-# Starting at the 5th band (0 indexed), extract all but the first 4 bands.
+# Starting at the 5th band (0 indexed), extract all but the first 4 channels.
 wizard_image = lady_image.extract_band(4, n: lady_image.bands - 4)
 wizard_image.write_to_file('revealed.jpg')
       </code></pre>

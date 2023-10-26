@@ -31,7 +31,7 @@
       <h4>Replacing Colors the Slow Way</h4>
 
       <p>
-        A niave approach is to use RMagick's <a href="https://rmagick.github.io/image2.html#opaque">opaque</a> operation, which is used to replace one color in an image with another color.
+        A naive approach is to use RMagick's <a  href="https://rmagick.github.io/image2.html#opaque" target="_blank">opaque</a> operation, which is used to replace one color in an image with another color.
       </p>
 
       <pre><code>
@@ -61,7 +61,7 @@ img.write('out.png')
       <p>I would not recommend this approach unless you have a very specific usecase.</p>
 
       <h4>Replacing Colors the Fast Way with Palette Images</h4>
-      <p>Provided the image you would like to manipulate has a relatively limited number of colors (less than 256 is the common), you should consider performing your recoloring operations with palette images.  Instead of encoding each color in each pixel, the colors are stored in a lookup table that is referenced by individual pixels.  We can recolor our image simply by manipulting that lookup table!</p>
+      <p>Provided the image you would like to manipulate has a relatively limited number of colors (less than 256 is standard), you should consider performing your recoloring operations with palette images.  Instead of encoding each color in each pixel, the colors are stored in a lookup table that is referenced by individual pixels.  We can recolor our image simply by manipulting that lookup table!</p>
 
       <pre><code>
 require 'rmagick'
@@ -91,7 +91,7 @@ end
 img.write('out.png')
       </code></pre>
 
-      <p>Running this against the same test image as the earlier script, this operation takes around 1.6 seconds to complete.  If you have the opportunity to pre-process and cache the palette version of your input image, the entire operation including reading and writing the file only takes around 0.5 seconds, which is the roughly the same amount of time required to read the file in and write it back to disk without manipulation.  This means we have nearly free recoloring once you have the image in palette format.</p>
+      <p>Running this against the same test image as the earlier script, this operation takes around 1.6 seconds to complete including file I/O.  If you have the opportunity to pre-process and cache the palette version of your input image, the entire operation including reading and writing the file only takes around 0.5 seconds, which is the roughly the same amount of time required to read the file in and write it back to disk without manipulation.  This means we have nearly free recoloring once you have the image in palette format.</p>
 
       <p>As an added bonus, palette images are smaller on disk -- they should only require 8 bits per pixel instead of 8 bits per channel per pixel.  Your mileage will vary depending on how well compression works on your images.</p>
     </div>
