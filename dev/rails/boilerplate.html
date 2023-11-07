@@ -33,8 +33,7 @@ rails g scaffold comments title:string body:string --api
 
       <p>Cool.  So let's pop open that controller and take a look at it.  If you're an experienced Rails developer, this is going to look extremely familiar.</p>
 
-      <pre>
-        <code>
+      <pre><code>
 class CommentsController < ApplicationController
   before_action :set_comment, only: %i[ show update destroy ]
 
@@ -76,8 +75,7 @@ class CommentsController < ApplicationController
       params.require(:comment).permit(:title, :body)
     end
   end
-        </code>
-      </pre>
+      </code></pre>
 
       <p>I'm not here to knock the scaffolded code.  It's designed to be extremely approachable for beginners and it succeeds at that.</p>
 
@@ -90,8 +88,7 @@ class CommentsController < ApplicationController
 
       <p>Let's take a quick beat to code golf this a bit before moving on.</p>
 
-      <pre>
-        <code>
+      <pre> <code>
 class CommentsController < ApplicationController
   def index
     comments
@@ -142,8 +139,7 @@ class CommentsController < ApplicationController
     params.require(:comment).permit(:title, :body)
   end
 end
-        </code>
-      </pre>
+      </code></pre>
 
       <p>Not perfect, but you get the idea.  We're feeding the rest of the controller from the same <code>comments</code> method, so there's a single point of responsibility where you can later scope your controller so that's great.  Having slimmed things down a little, let's go a step deeper.</p>
 
@@ -151,8 +147,7 @@ end
 
       <p>The next step is to pull the boilerplate out into a concern that handles all the typical model interactions for you in a generic fashion.</p>
 
-      <pre>
-        <code>
+      <pre><code>
 module Boilerplate
   extend ActiveSupport::Concern
 
@@ -203,8 +198,7 @@ module Boilerplate
     end
   end
 end
-        </code>
-      </pre>
+      </code></pre>
 
       <p>What follows is an almost bare controller.  All of your controllers that are just there to do generic CRUD actions can be set up this way.</p>
 
@@ -220,15 +214,13 @@ class CommentsController < ApplicationController
   end
 end
 
-        </code>
-      </pre>
+      </code></pre>
 
       <p>If you have a controller that almost behaves appropriately for this pattern but doesn't quite fit, just overwrite the methods that need special behavior.</p>
 
       <p>One minor compromise I've made for simlicity is to swap the instance variables in the scaffolded views from @comment/@comments to @resource/@collection.  I wouldn't recommend it, but if you <b>REALLY</b> don't want generic instance variable names for your views, add something like this to your boilerplate concern:</p>
 
-      <pre>
-        <code>
+      <pre><code>
 def resource_name
   @resource_name ||= collection_name.singularize
 end
@@ -252,8 +244,7 @@ end
 def resource
   instance_variable_get(resource_name) || instance_variable_set(resource_name, set_resource)
 end
-        </code>
-      </pre>
+      </code></pre>
     </div>
   </body>
 </html>

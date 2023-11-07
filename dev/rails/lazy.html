@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Lazy Enumerators are Faster...or are they?</title>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+
+    <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="preload" as="style" href="/layout/layout.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <link rel="stylesheet" href="/layout/layout.css">
+
+    <script src="/layout/highlight.min.js"></script>
+
+    <link rel="preload" as="script" href="/layout/load.js">
+    <script src="/layout/load.js" defer></script>
+  </head>
+
+  <body style="opacity: 0;">
+    <div class="container">
+      <h3>Lazy Enumerators are Faster...or are they?</h3>
+
+      <p>Lazy numerators work very similar to normal Ruby Enumberators but they don't execute until immediately.  Instead they evaluate values on an as-needed basis.  For a deep dive into how to use it, check the <a href="https://ruby-doc.org/core-2.7.0/Enumerator/Lazy.html" target="_blank">official documentation</a>.</p>
+
+      <p>Thematically I like the idea of lazy evaluating enumerators quite a lot.  It lines up well with ActiveRecord's lazy evaludation.</p>
+
+      <p>A basic usage example:</p>
+
+<pre><code># Standard enumerator
+(0..15).select { |i| i.even? }.map { |i| puts i; i *= 2 }.first(3)
+0
+2
+4
+6
+8
+10
+12
+14
+=> [0, 4, 8]
+
+# Lazy enumerator.  Notice how we only manipulate our data until we have the first three qualifying elements.
+(0..15).lazy.select { |i| i.even? }.map { |i| puts i; i *= 2 }.first(3)
+0
+2
+4
+=> [0, 4, 8]
+</code></pre>
+
+      <h4>Benchmarking</h4>
+
+      <p>Can we mimic the lazy behavior without using the lazy operator?  Let's find out by attempting to find the first one hundred perfect squares between two large numbers.  I'll wrap our code in some benchmarking to see how each performs.</p>
+
+<pre><code>iterations = 500
+
+Benchmark.measure do
+    iterations.times do
+        # The "I don't know about lazy" way
+        (100000..50000000).each_with_object([]) do |i, array|
+            array << i if Math.sqrt(i) % 1 == 0
+
+            # We are too lazy to process beyond our desired count
+            break array if array.length == 100
+        end
+    end
+end
+
+Benchmark.measure do
+    iterations.times do
+        # The lazy way
+        (100000..50000000).lazy.select { |i| Math.sqrt(i) % 1 == 0 }.first(100)
+    end
+end
+</code></pre>
+      <p>Perhaps we're picking an unfair example, but 500 iterations of our "don't know about lazy" operation takes 5.598 seconds and our lazy opeartion takes 8.290 seconds.  Certainly we're doing better than a non-lazy implementation, but the results are still somewhat surprising.  A shame given how much nicer the lazy code is too.</p>
+
+      <p>Yusuke Endoh addressed this directly when lazy's performance issues were <a href="https://bugs.ruby-lang.org/issues/6183#note-2" target="_blank">reported as a bug</a>.</p>
+
+      <blockquote>
+        Enumerator::Lazy is not a silver bullet; it removes the overhead for
+creating an intermediate array, but brings the drawback for calling
+a block. Unfortunately, the latter is much bigger than the former.
+Thus, in general, Lazy does bring performance drawback.
+      </blockquote>
+
+      <h4>When should we use the lazy enumerator?</h4>
+
+      <p>The code cleanliness may be worth the small amount of additional overhead.</p>
+
+      <p>The proportional overhead of using the lazy enumerator decreases for slower chained operations.  Consider the case where you're iterating over a list of items and making an HTTP GET for each until you find the object(s) that you're looking for.  The overhead of those HTTP calls will far outweigh the performance hit from using a lazy enumerator.</p>
+    </div>
+  </body>
+</html>
