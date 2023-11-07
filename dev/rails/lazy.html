@@ -64,6 +64,7 @@ Benchmark.measure do
         end
     end
 end
+# This took 5.598 seconds
 
 Benchmark.measure do
     iterations.times do
@@ -71,8 +72,9 @@ Benchmark.measure do
         (100000..50000000).lazy.select { |i| Math.sqrt(i) % 1 == 0 }.first(100)
     end
 end
+# This took 8.290 seconds
 </code></pre>
-      <p>Perhaps we're picking an unfair example, but 500 iterations of our "don't know about lazy" operation takes 5.598 seconds and our lazy opeartion takes 8.290 seconds.  Certainly we're doing better than a non-lazy implementation, but the results are still somewhat surprising.  A shame given how much nicer the lazy code is too.</p>
+      <p>Perhaps we're picking an unfair example, but 500 iterations of our lazy implementation is slower than a traditional implementation!  Certainly we're doing better than a non-lazy implementation that doesn't break out of its loop, but the results are still somewhat surprising.  A shame given how much nicer the lazy code is too.</p>
 
       <p>Yusuke Endoh addressed this directly when lazy's performance issues were <a href="https://bugs.ruby-lang.org/issues/6183#note-2" target="_blank">reported as a bug</a>.</p>
 
