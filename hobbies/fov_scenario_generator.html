@@ -89,16 +89,19 @@
             'Rescue someone'
         ];
  
-        var object_type = 'thing';
+        var object_type = '';
 
         function roll(identifier) {
             var items = eval(identifier);
+
+            if (identifier === 'object' && object_type != '') {
+                items = items.filter((item) => item['type'] == object_type);
+            }
+
             var result = items[Math.floor(Math.random() * items.length)];
         
             if (typeof result === 'object') {
-                if (result['type']) object_type = result['type'];
-                console.warn(result);
-                console.warn(object_type);
+                if (result['type'] && object_type == '') object_type = result['type'];
                 if (!result['person']) {
                     result = Object.values(result)[0]
                 } else {
@@ -111,7 +114,8 @@
         }
 
         function rollAll() {
-            buttons = document.getElementsByClassName('roll-value')
+            object_type = '';
+            buttons = document.getElementsByClassName('roll-value');
             Array.from(buttons).reverse().forEach((button) => button.click());
         }
     </script>
