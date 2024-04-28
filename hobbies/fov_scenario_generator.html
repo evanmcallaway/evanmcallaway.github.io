@@ -89,19 +89,21 @@
             'Rescue someone'
         ];
  
-        var object_type = '';
+        var object_type = 'thing';
+        var current_interaction;
+
+        function setVal(identifier, value) {
+            document.getElementById(identifier).innerHTML = value.replace(/^An?/, '');
+            document.getElementById(identifier + "-word").innerHTML = value.split(" - ")[0].toLowerCase();
+        }
 
         function roll(identifier) {
             var items = eval(identifier);
-
-            if (identifier === 'object' && object_type != '') {
-                items = items.filter((item) => item['type'] == object_type);
-            }
-
             var result = items[Math.floor(Math.random() * items.length)];
         
             if (typeof result === 'object') {
-                if (result['type'] && object_type == '') object_type = result['type'];
+                if (identifier == 'object') object_type = result['type'];
+                if (identifier == 'interaction') current_interaction = result;
                 if (!result['person']) {
                     result = Object.values(result)[0]
                 } else {
@@ -109,14 +111,16 @@
                 }
             }
 
-            document.getElementById(identifier).innerHTML = result.replace(/^An?/, '');
-            document.getElementById(identifier + "-word").innerHTML = result.split(" - ")[0].toLowerCase();
+            if (identifier === 'object') {
+                setVal('interaction', current_interaction[object_type]);
+            }
+
+            setVal(identifier, result);
         }
 
         function rollAll() {
-            object_type = '';
             buttons = document.getElementsByClassName('roll-value');
-            Array.from(buttons).reverse().forEach((button) => button.click());
+            Array.from(buttons).forEach((button) => button.click());
         }
     </script>
   </head>
