@@ -33,37 +33,37 @@
         ];
 
         const interaction = [
-            'Construct',
-            'Capture',
-            'Decode',
-            'Destroy',
-            'Investigate',
-            'Hide',
-            'Repair',
-            'Unlock',
-            'Copy'
+            { thing: 'Construct', person: "Restore" },
+            { thing: 'Capture', person: "Capture" },
+            { thing: 'Decode', person: "Blackmail" },
+            { thing: 'Destroy', person: "Murder" },
+            { thing: 'Investigate', person: "Investigate" },
+            { thing: 'Hide', person: "Hide" },
+            { thing: 'Repair', person: "Pardon" },
+            { thing: 'Unlock', person: "Free" },
+            { thing: 'Copy', person: "Impersonate" }
         ];
 
         const object = [
-            'A Cannon',
-            'Letters',
-            'A Grimoire',
-            'A Gate',
-            'The Mayor',
-            'An Artisan',
-            'An Assassin',
-            'The Duchess',
-            'A Spy',
-            'The Duke\'s Son',
-            'A Work Party',
-            'A Relic',
-            'A Banner',
-            'A Statue',
-            'A Courtesan',
-            'A Banker',
-            'A Dead Body',
-            'A Building',
-            'A Grave'
+            { name: 'A Cannon', type: "thing" },
+            { name: 'Letters', type: "thing" },
+            { name: 'A Grimoire', type: "thing" },
+            { name: 'A Gate', type: "thing" },
+            { name: 'The Mayor', type: "person" },
+            { name: 'An Artisan', type: "person" },
+            { name: 'An Assassin', type: "person" },
+            { name: 'The Duchess', type: "person" },
+            { name: 'A Spy', type: "person" },
+            { name: 'The Duke\'s Son', type: "person" },
+            { name: 'A Work Party', type: "person" },
+            { name: 'A Relic', type: "thing" },
+            { name: 'A Banner', type: "thing" },
+            { name: 'A Statue', type: "thing" },
+            { name: 'A Courtesan', type: "person" },
+            { name: 'A Banker', type: "person" },
+            { name: 'A Dead Body', type: "thing" },
+            { name: 'A Building', type: "thing" },
+            { name: 'A Grave', type: "thing" }
         ];
 
         const purpose = [
@@ -89,16 +89,30 @@
             'Rescue someone'
         ];
  
+        var object_type = 'thing';
+
         function roll(identifier) {
             var items = eval(identifier);
             var result = items[Math.floor(Math.random() * items.length)];
+        
+            if (typeof result === 'object') {
+                if (result['type']) object_type = result['type'];
+                console.warn(result);
+                console.warn(object_type);
+                if (!result['person']) {
+                    result = Object.values(result)[0]
+                } else {
+                    result = result[object_type];
+                }
+            }
+
             document.getElementById(identifier).innerHTML = result.replace(/^An?/, '');
             document.getElementById(identifier + "-word").innerHTML = result.split(" - ")[0].toLowerCase();
         }
 
         function rollAll() {
-            buttons = document.getElementsByClassName('roll-value');
-            Array.from(buttons).forEach((button) => button.click());
+            buttons = document.getElementsByClassName('roll-value')
+            Array.from(buttons).reverse().forEach((button) => button.click());
         }
     </script>
   </head>
