@@ -93,6 +93,15 @@
             var items = eval(identifier);
             var result = items[Math.floor(Math.random() * items.length)];
             document.getElementById(identifier).innerHTML = result.replace(/^An?/, '');
+            
+            if (identifier == 'purpose') {
+                if (result.startsWith('For')) {
+                    document.getElementById(identifier + "-connector").style.display = "none";
+                } else {
+                    document.getElementById(identifier + "-connector").style.display = "";
+                }
+            }
+
             document.getElementById(identifier + "-word").innerHTML = result.split(" - ")[0].toLowerCase();
         }
 
@@ -107,7 +116,7 @@
       <h3>Force of Virtue Scenario Generator</h3>
 
       <p>
-        You will lead <i id="objective-word"></i> against <i id="deployment-word"></i> enemy in order to <i id="interaction-word"></i> <i id="object-word"></i> and <i id="purpose-word"></i>.
+        You will lead <i id="objective-word"></i> against <i id="deployment-word"></i> enemy in order to <i id="interaction-word"></i> <i id="object-word"></i> <span id="purpose-connector">and </span><i id="purpose-word"></i>.
       </p>
     
       <table>
