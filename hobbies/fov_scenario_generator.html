@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Force of Virtue Scenario Generator</title>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+    <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="preload" as="style" href="/layout/layout.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <link rel="stylesheet" href="/layout/layout.css">
+
+    <script src="/layout/highlight.min.js"></script>
+
+    <link rel="preload" as="script" href="/layout/load.js">
+    <script src="/layout/load.js" defer></script>
+    <style>
+        .result {
+            width: 75%;
+        }
+    </style>
+    <script>
+        const objective = [
+            'A Strike - Single central objective',
+            'An Assault - Five terrain pieces hiding the main objective',
+            'A Search - Three objectives of the same type'
+        ];
+
+        const deployment = [
+            'A Positioned - Centre deployment',
+            'An Advancing - Board edges',
+            'A Scattered - Scattered groups'
+        ];
+
+        const interaction = [
+            'Construct',
+            'Capture',
+            'Decode',
+            'Destroy',
+            'Investigate',
+            'Hide',
+            'Repair',
+            'Unlock',
+            'Copy'
+        ];
+
+        const object = [
+            'A Cannon',
+            'Letters',
+            'A Grimoire',
+            'A Gate',
+            'The Mayor',
+            'An Artisan',
+            'An Assassin',
+            'The Duchess',
+            'A Spy',
+            'The Duke\'s Son',
+            'A Work Party',
+            'A Relic',
+            'A Banner',
+            'A Statue',
+            'A Courtesan',
+            'A Banker',
+            'A Dead Body',
+            'A Building',
+            'A Grave'
+        ];
+
+        const purpose = [
+            'Gain intelligence',
+            'Fill your coffers',
+            'Extort an enemy',
+            'Gain glory',
+            'Reveal a secret',
+            'Gain arcane knowledge',
+            'Sabotage enemy supplies',
+            'Wreak revenge',
+            'Send a message',
+            'Pillage',
+            'Win a bet',
+            'Bribe someone',
+            'Seduce',
+            'Humiliate',
+            'Interrogate',
+            'Gain access to the town/castle',
+            'For a foreign power',
+            'For the Hell of it',
+            'To repay a debt',
+            'Rescue'
+        ];
+ 
+        function roll(identifier) {
+            var items = eval(identifier);
+            var result = items[Math.floor(Math.random() * items.length)];
+            document.getElementById(identifier).innerHTML = result.replace(/^An?/, '');
+            document.getElementById(identifier + "-word").innerHTML = result.split(" - ")[0].toLowerCase();
+        }
+
+        function rollAll() {
+            buttons = document.getElementsByClassName('roll-value');
+            Array.from(buttons).forEach((button) => button.click());
+        }
+    </script>
+  </head>
+  <body style="opacity: 0; " onload="rollAll()">
+    <div class="container">
+      <h3>Force of Virtue Scenario Generator</h3>
+
+      <p>
+        Your will lead a <i id="objective-word"></i> against a <i id="deployment-word"></i> enemy in order to <i id="interaction-word"></i> <i id="object-word"></i> and <i id="purpose-word"></i>.
+      </p>
+    
+      <table>
+        <tr>
+            <td></td>
+            <td></td>
+            <td>
+                <button onclick="rollAll()">Roll All</button>
+            </td>
+        </tr>
+        <tr>
+            <td class="label">
+                <b>Objective</b>
+            </td>
+            <td id="objective" class="result">
+            </td>
+            <td>
+                <button class="roll-value" onclick="roll('objective')">Roll</button>
+            </td>
+        </tr>
+        <tr>
+            <td class="label">
+                <b>Deployment</b>
+            </td>
+            <td id="deployment" class="result">
+            </td>
+            <td>
+                <button class="roll-value" onclick="roll('deployment')">Roll</button>
+            </td>
+        </tr>
+        <tr>
+            <td class="label">
+                <b>Interaction</b>
+            </td>
+            <td id="interaction" class="result">
+            </td>
+            <td>
+                <button class="roll-value" onclick="roll('interaction')">Roll</button>
+            </td>
+        </tr>
+        <tr>
+            <td class="label">
+                <b>Object</b>
+            </td>
+            <td id="object" class="result">
+            </td>
+            <td>
+                <button class="roll-value" onclick="roll('object')">Roll</button>
+            </td>
+        </tr>
+        <tr>
+            <td class="label">
+                <b>Purpose</b>
+            </td>
+            <td id="purpose" class="result">
+            </td>
+            <td>
+                <button class="roll-value" onclick="roll('purpose')">Roll</button>
+            </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>
